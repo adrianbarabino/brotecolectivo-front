@@ -1,30 +1,29 @@
 <script>
-    import { onMount } from 'svelte';
-    import SkeletonCard from '../components/SkeletonCard.svelte';
-  
-    let news = [];
-    let error = '';
-    let loading = true;
-  
-    const API = 'http://www.adrianbarabino.com:3055';
-    const TOKEN = 'token-secreto';
-  
-    onMount(async () => {
-      try {
-        const res = await fetch(`${API}/news`, {
-          headers: {
-            Authorization: `Bearer ${TOKEN}`
-          }
-        });
-        if (!res.ok) throw new Error('Error al obtener noticias');
-        news = await res.json();
-      } catch (err) {
-        error = err.message;
-      } finally {
-        loading = false;
-      }
-    });
-  </script>
+  import { onMount } from 'svelte';
+  import SkeletonCard from '../components/SkeletonCard.svelte';
+  import { fetchWithCache } from '../utils/fetchWithCache.js';
+
+  let news = [];
+  let error = '';
+  let loading = true;
+
+  const API = 'http://www.adrianbarabino.com:3055';
+  const TOKEN = 'token-secreto';
+
+  onMount(async () => {
+    try {
+      news = await fetchWithCache('news', `${API}/news`, {
+        headers: {
+          Authorization: `Bearer ${TOKEN}`
+        }
+      });
+    } catch (err) {
+      error = err.message;
+    } finally {
+      loading = false;
+    }
+  });
+</script>
   
   <style>
     main {

@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import { push } from 'svelte-spa-router';
+    import { navigate } from 'svelte-routing'; // ✅ usamos svelte-routing
   
     let username = '';
     let password = '';
@@ -24,7 +24,7 @@
         const data = await res.json();
         localStorage.setItem('token', data.token);
   
-        push('/panel'); // redirigir al panel
+        navigate('/panel'); // ✅ redirigimos correctamente
       } catch (err) {
         error = err.message;
       }

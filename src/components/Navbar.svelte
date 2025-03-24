@@ -1,5 +1,7 @@
 <script>
-    import { link } from 'svelte-spa-router';
+      import { link } from 'svelte-routing';
+      import { url } from '../stores/url.js';
+      $: current = $url;
   </script>
   
   <style>
@@ -54,12 +56,12 @@
   </style>
   
   <nav>
-    <div class="logo">Brote Colectivo</div>
-    <div class="nav-links">
-      <a href="/" use:link>Inicio</a>
-      <a href="/artists" use:link>Artistas</a>
-      <a href="/events" use:link>Agenda</a>
-      <a href="/venues" use:link>Espacios culturales</a>
-    </div>
-  </nav>
-  
+  <div class="logo">Brote Colectivo</div>
+  <div class="nav-links">
+    <a href="/" use:link class:active={current === '/'}>Inicio</a>
+    <a href="/artists" use:link class:active={current === '/artists'}>Artistas</a>
+    <a href="/venues" use:link class:active={current === '/venues'}>Espacios culturales</a>
+    <a href="/events" use:link class:active={current === '/events'}>Agenda</a>
+    <a href="/login" use:link class:active={current === '/login'}>Iniciar sesión</a>
+  </div>
+</nav>

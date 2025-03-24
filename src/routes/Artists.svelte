@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import SkeletonCard from '../components/SkeletonCard.svelte';
+  import { fetchWithCache } from '../utils/fetchWithCache.js';
 
   let bands = [];
   let error = '';
@@ -11,13 +12,11 @@
 
   onMount(async () => {
     try {
-      const res = await fetch(`${API}/bands`, {
+      bands = await fetchWithCache('bands', `${API}/bands`, {
         headers: {
           Authorization: `Bearer ${TOKEN}`
         }
       });
-      if (!res.ok) throw new Error('Error al obtener artistas');
-      bands = await res.json();
     } catch (err) {
       error = err.message;
     } finally {
