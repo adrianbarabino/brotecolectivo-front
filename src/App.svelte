@@ -3,7 +3,7 @@
 	import { Router, Route } from 'svelte-routing';
 	import { url } from './stores/url.js';
 	import { applyMetatags } from './metatags.js';
-  
+	import Player  from './components/Player.svelte';
 	// Componentes globales
 	import Navbar from './components/Navbar.svelte';
   
@@ -43,4 +43,5 @@
 	  <Route path="/login" component={Login} />
 	</Router>
   </main>
+  <Player />
   
