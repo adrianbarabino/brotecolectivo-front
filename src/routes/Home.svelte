@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import SkeletonCard from '../components/SkeletonCard.svelte';
   import { fetchWithCache } from '../utils/fetchWithCache.js';
+  import SongList from '../components/SongList.svelte';
  
   let mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/';
 
@@ -148,5 +149,6 @@
         {/each}
       </div>
     {/if}
+    <SongList />
   </main>
   
