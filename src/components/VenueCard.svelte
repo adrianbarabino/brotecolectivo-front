@@ -138,7 +138,7 @@
   
     <div class="button-row">
       <button on:click={openMap}>Ver en el mapa</button>
-      <button on:click={openInGoogleMaps}>Abrir en Google Maps</button>
+      <button on:click={openInGoogleMaps}>Como llegar</button>
     </div>
   </div>
   
