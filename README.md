@@ -8,11 +8,10 @@ Este es el frontend de **Brote Colectivo**, un sitio web para la difusión de ar
 
 - [Svelte](https://svelte.dev/) – Framework frontend
 - [svelte-routing](https://github.com/EmilTholin/svelte-routing) – Enrutamiento
-- [Leaflet](https://leafletjs.com/) – Mapas interactivos para venues
-- HTML + CSS moderno (con Skeleton Loaders personalizados)
-- Fetch con caching simple para mejorar rendimiento
-- JWT Authentication (frontend login básico)
-
+- [Leaflet](https://leafletjs.com/) – Mapas interactivos
+- HTML + CSS
+- Fetch con caching para mejorar rendimiento
+- JWT Authentication
 ---
 
 ## 🚀 Instalación
