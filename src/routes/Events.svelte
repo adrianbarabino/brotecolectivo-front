@@ -4,6 +4,7 @@
     let events = [];
     let error = '';
     let loading = true;
+    let mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/';
   
     const API = 'http://www.adrianbarabino.com:3055';
     const TOKEN = 'token-secreto';
@@ -20,6 +21,11 @@
       } catch (err) {
         error = err.message;
       } finally {
+        events = events.map(event => ({
+        ...event,
+        image: `${mediaUrl}events/${event.slug}.jpg`
+      }));
+      
         loading = false;
       }
     });
@@ -115,6 +121,7 @@
           <div class="card">
             <div class="title">{event.title}</div>
             <div class="info">
+              <img src={event.image} alt={event.title} style="width: 100%; border-radius: 10px; margin-bottom: 0.5rem;" />
               📅 {event.date_start} — {event.date_end}<br />
               📍 {event.venue?.name}
             </div>

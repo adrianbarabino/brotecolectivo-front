@@ -13,7 +13,7 @@
 	import Venues from './routes/Venues.svelte';
 	import Events from './routes/Events.svelte';
 	import Login from './routes/Login.svelte';
-  
+
 	// Detectar cambios de ruta y aplicar metatags automáticamente
 	url.subscribe((path) => {
 	  const routeKey = getRouteKey(path);

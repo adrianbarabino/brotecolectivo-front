@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
   import SkeletonCard from '../components/SkeletonCard.svelte';
   import { fetchWithCache } from '../utils/fetchWithCache.js';
+ 
+  let mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/';
 
   let news = [];
   let error = '';
@@ -20,6 +22,10 @@
     } catch (err) {
       error = err.message;
     } finally {
+      news = news.map(newsSingle => ({
+        ...newsSingle,
+        image: `${mediaUrl}news/${newsSingle.slug}.jpg`
+      }));
       loading = false;
     }
   });
@@ -121,7 +127,10 @@
         {#each news as n}
           <div class="card">
             <div class="title">{n.title}</div>
+
+              <img src={n.image} alt={n.title} />
             <div class="content">{@html n.content}</div>
+
   
             {#if n.bands && n.bands.length > 0}
               <div class="bands">

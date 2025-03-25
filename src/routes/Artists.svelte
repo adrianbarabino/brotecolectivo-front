@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import SkeletonCard from '../components/SkeletonCard.svelte';
   import { fetchWithCache } from '../utils/fetchWithCache.js';
-
+  let mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/';
   let bands = [];
   let error = '';
   let loading = true;
@@ -20,6 +20,12 @@
     } catch (err) {
       error = err.message;
     } finally {
+      bands = bands.map(band => ({
+        ...band,
+        image: `${mediaUrl}bands/${band.slug}.jpg`
+      }));
+      
+      
       loading = false;
     }
   });
@@ -121,6 +127,7 @@
       {#each bands as band}
         <div class="card">
           <div class="name">{band.name}</div>
+          <img src={band.image} alt={band.name} style="width: 100%; border-radius: 10px; margin-bottom: 1rem;" />
           <div class="bio">{@html band.bio}</div>
 
           {#if band.social && Object.keys(band.social).length > 0}
