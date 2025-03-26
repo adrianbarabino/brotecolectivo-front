@@ -9,9 +9,11 @@
   
 	// Rutas
 	import Home from './routes/Home.svelte';
+	import News from './routes/News.svelte';
 	import Artists from './routes/Artists.svelte';
 	import Venues from './routes/Venues.svelte';
 	import Events from './routes/Events.svelte';
+	import Event from './routes/Event.svelte';
 	import Login from './routes/Login.svelte';
 
 	// Detectar cambios de ruta y aplicar metatags automáticamente
@@ -24,8 +26,10 @@
 	function getRouteKey(path) {
 	  if (path === '/') return 'home';
 	  if (path.startsWith('/artists')) return 'artists';
+	  if (path.startsWith('/news')) return 'news';
 	  if (path.startsWith('/venues')) return 'venues';
 	  if (path.startsWith('/events')) return 'events';
+	  if (path.startsWith('/events/')) return 'event';
 	  if (path.startsWith('/login')) return 'login';
 	  if (path.startsWith('/panel')) return 'panel';
 	  return 'default';
@@ -36,10 +40,12 @@
   
   <main>
 	<Router>
-	  <Route path="/" component={Home} />
-	  <Route path="/artists" component={Artists} />
+		<Route path="/" component={Home} />
+		<Route path="/news" component={News} />
+		<Route path="/artists" component={Artists} />
 	  <Route path="/venues" component={Venues} />
 	  <Route path="/events" component={Events} />
+	  <Route path="/events/:slug" component={Event} />
 	  <Route path="/login" component={Login} />
 	</Router>
   </main>

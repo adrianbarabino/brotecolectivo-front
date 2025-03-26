@@ -6,7 +6,7 @@
     let songs = [];
     let error = '';
     let loading = true;
-    const API = 'http://www.adrianbarabino.com:3055';
+    const API = 'https://api.brotecolectivo.com';
     const TOKEN = 'token-secreto';
     const mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/songs/';
   

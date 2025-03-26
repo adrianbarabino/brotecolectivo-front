@@ -2,15 +2,15 @@
   import { onMount } from 'svelte';
   import SkeletonCard from '../components/SkeletonCard.svelte';
   import { fetchWithCache } from '../utils/fetchWithCache.js';
-  import SongList from '../components/SongList.svelte';
- 
+  import RandomBand from '../components/RandomBand.svelte';
+  import Header from '../components/Header.svelte';
   let mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/';
 
   let news = [];
   let error = '';
   let loading = true;
 
-  const API = 'http://www.adrianbarabino.com:3055';
+  const API = 'https://api.brotecolectivo.com';
   const TOKEN = 'token-secreto';
 
   onMount(async () => {
@@ -30,90 +30,14 @@
       loading = false;
     }
   });
+ let breadcrumbs = ['Home', 'Noticias']
 </script>
   
-  <style>
-    main {
-      background-color: #f5f5f5;
-      color: #222;
-      min-height: 100vh;
-      padding: 2rem;
-      font-family: system-ui, sans-serif;
-    }
-  
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 2rem;
-      text-align: center;
-    }
-  
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-    }
-  
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: transform 0.2s ease;
-    }
-  
-    .card:hover {
-      transform: translateY(-5px);
-    }
-  
-    .title {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-      color: #333;
-    }
-  
-    .content {
-      font-size: 0.95rem;
-      color: #555;
-      line-height: 1.4;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 6;
-      -webkit-box-orient: vertical;
-    }
-  
-    .bands {
-      margin-top: 0.8rem;
-      font-size: 0.9rem;
-      color: #666;
-    }
-  
-    .more-btn {
-      margin-top: 1rem;
-      align-self: flex-start;
-      background: #0077cc;
-      color: #fff;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 0.9rem;
-      text-decoration: none;
-    }
-  
-    .more-btn:hover {
-      background-color: #005fa3;
-    }
-  </style>
-  
-  <main>
-    <h1>Noticias</h1>
-  
-    {#if loading}
+  <Header title="Bienvenido a Brote Colectivo" subhead="sitio de difusión cultural en Santa Cruz, Argentina" breadcrumbs={breadcrumbs} />
+  <section class="container row">
+    <div class="col-md-8">
+
+      {#if loading}
       <div class="grid">
         {#each Array(6) as _}
           <SkeletonCard lines={4} />
@@ -149,6 +73,26 @@
         {/each}
       </div>
     {/if}
-    <SongList />
-  </main>
+
+    </div>
+    <aside class="col-md-4">
+      <RandomBand />
+    </aside>
   
+  </section>
+
+  <style>
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .col-md-8 {
+      flex: 0 0 66.6666666667%;
+      max-width: 66.6666666667%;
+    }
+    .col-md-4 {
+      flex: 0 0 33.3333333333%;
+      max-width: 33.3333333333%;
+    }
+  </style>

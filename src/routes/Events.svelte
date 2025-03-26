@@ -1,14 +1,16 @@
 <script>
-  import { onMount } from 'svelte';
+  import { link } from 'svelte-routing';
+import { onMount } from 'svelte';
   import { fetchWithCache } from '../utils/fetchWithCache.js';
   import SkeletonCard from '../components/SkeletonCard.svelte';
+  import Header from '../components/Header.svelte';
 
   let events = [];
   let error = '';
   let loading = true;
   let mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/';
 
-  const API = 'http://www.adrianbarabino.com:3055';
+  const API = 'https://api.brotecolectivo.com';
   const TOKEN = 'token-secreto';
 
   onMount(async () => {
@@ -31,86 +33,14 @@
       loading = false;
     }
   });
+  let breadcrumbs = ['Home', 'Agenda Cultural']
+
 </script>
 
-<style>
-  main {
-    background-color: #f5f5f5;
-    color: #222;
-    min-height: 100vh;
-    padding: 2rem;
-    font-family: system-ui, sans-serif;
-  }
 
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 2rem;
-    text-align: center;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-  }
-
-  .card {
-    background: #fff;
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: transform 0.2s ease;
-  }
-
-  .card:hover {
-    transform: translateY(-5px);
-  }
-
-  .title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    color: #333;
-  }
-
-  .info {
-    font-size: 0.95rem;
-    color: #555;
-    margin-bottom: 0.5rem;
-    line-height: 1.4;
-  }
-
-  .bands {
-    font-size: 0.9rem;
-    color: #666;
-    margin-top: 0.5rem;
-  }
-
-  .more-btn {
-    margin-top: 1rem;
-    align-self: flex-start;
-    background: #0077cc;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 0.9rem;
-    text-decoration: none;
-  }
-
-  .more-btn:hover {
-    background-color: #005fa3;
-  }
-</style>
-
-<main>
-  <h1>Agenda Cultural</h1>
-
+  
+<Header title="Agenda Cultural" subhead="enterate de todos los eventos próximos y pasados" breadcrumbs={breadcrumbs} />
+<section class="container">
   {#if loading}
     <div class="grid">
       {#each Array(6) as _}
@@ -142,10 +72,11 @@
               </ul>
             </div>
           {/if}
+            <a  href={`/events/${event.slug}`} use:link class="more-btn">Ver más detalles</a>
 
-          <button class="more-btn">Ver más detalles</button>
+
         </div>
       {/each}
     </div>
   {/if}
-</main>
+</section>

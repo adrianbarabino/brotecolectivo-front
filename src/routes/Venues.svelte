@@ -8,7 +8,7 @@
   let error = '';
   let loading = true;
 
-  const API = 'http://www.adrianbarabino.com:3055';
+  const API = 'https://api.brotecolectivo.com';
   const TOKEN = 'token-secreto';
 
   onMount(async () => {
