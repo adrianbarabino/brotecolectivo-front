@@ -25,6 +25,11 @@
         if (newsItem) {
           newsItem.image = `${mediaUrl}news/${newsItem.slug}.jpg`;
         }
+
+        // si se encuntrar un [leermas] borrarlo
+        if (newsItem.content.includes('[leermas]')) {
+          newsItem.content = newsItem.content.replace('[leermas]', '');
+        }
   
       } catch (err) {
         error = err.message;

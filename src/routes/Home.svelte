@@ -27,6 +27,23 @@
         ...newsSingle,
         image: `${mediaUrl}news/${newsSingle.slug}.jpg`
       }));
+
+      // recortar las notas a los 300 caracteres o hasta encontrar un [leermas] como shortcode para leer más
+      news = news.map(n => {
+        let content = n.content;
+        if (content.length > 300) {
+          content = content.slice(0, 300);
+          const readMoreIndex = content.indexOf('[leermas]');
+          if (readMoreIndex !== -1) {
+            content = content.slice(0, readMoreIndex);
+          }
+          content += '...';
+        }
+        return {
+          ...n,
+          content
+        };
+      });
       loading = false;
     }
   });

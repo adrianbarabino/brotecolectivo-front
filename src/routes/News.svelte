@@ -4,6 +4,7 @@
     import { fetchWithCache } from '../utils/fetchWithCache.js';
     import SongList from '../components/SongList.svelte';
     import Header from '../components/Header.svelte';
+    import { links } from 'svelte-routing';
     let mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/';
   
     let news = [];
@@ -68,7 +69,7 @@
                 </div>
               {/if}
     
-              <a class="more-btn" href={`/news/${n.slug}`}>Ver más detalles</a>
+              <a class="more-btn" use:links href={`/news/${n.slug}`}>Ver más detalles</a>
             </div>
           {/each}
         </div>

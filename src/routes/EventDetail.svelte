@@ -3,37 +3,33 @@
     import { fetchWithCache } from '../utils/fetchWithCache.js';
     import Header from '../components/Header.svelte';
     import SkeletonCard from '../components/SkeletonCard.svelte';
-    let event = {};
+
+    let event = null;
     let error = '';
     let loading = true;
-    let mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/';
-    
+
+    const mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/';
     const API = 'https://api.brotecolectivo.com';
     const TOKEN = 'token-secreto';
-    
-    onMount(async () => {
-        try {
-        const data = await fetchWithCache('events', `${API}/events`, {
-            headers: {
-            Authorization: `Bearer ${TOKEN}`
-            }
-        });
-    
-        const path = window.location.pathname; // devuelve "/events/nombre-del-evento"
-const slug = path.split('/').pop(); // extrae "nombre-del-evento"
 
-        event = data.find(event => event.slug === slug);
-    
-        // add the image URL
-        event.image = `${mediaUrl}events/${event.slug}.jpg`;
-    
+
+    onMount(async () => {
+        const slug = window.location.pathname.split('/').pop();
+        try {
+            event = await fetchWithCache(`event-${slug}`, `${API}/events/${slug}`, {
+                headers: {
+                    Authorization: `Bearer ${TOKEN}`
+                }
+            });
+
+            event.image = `${mediaUrl}events/${event.slug}.jpg`;
         } catch (err) {
-        error = err.message;
+            error = err.message || 'Error al cargar el evento.';
         } finally {
-        loading = false;
+            loading = false;
         }
     });
-    
+
     let breadcrumbs = ['Home', 'Agenda Cultural', 'Eventos'];
 </script>
 <Header title="Agenda Cultural" subhead="enterate de todos los eventos próximos y pasados" breadcrumbs={breadcrumbs} />
