@@ -62,7 +62,7 @@
             </div>
           {/if}
 
-          <button class="more-btn">Ver más detalles</button>
+          <a class="more-btn" href={`/artists/${band.id}`}>Ver más detalles</a>
         </div>
       {/each}
     </div>

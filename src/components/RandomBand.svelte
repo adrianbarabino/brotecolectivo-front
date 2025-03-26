@@ -1,58 +1,55 @@
 <script>
     import { onMount } from 'svelte';
     import { fetchWithCache } from '../utils/fetchWithCache.js';
+    import SkeletonCard from './SkeletonCard.svelte';
+  
     let mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/';
-    
     let band = {};
     let loading = true;
     let error = '';
-    
+  
     async function loadRandomBand() {
-        try {
+      try {
         const API = 'https://api.brotecolectivo.com';
         const TOKEN = 'token-secreto';
         const data = await fetchWithCache('random-band', `${API}/bands`, {
-            headers: {
+          headers: {
             Authorization: `Bearer ${TOKEN}`
-            }
+          }
         });
-
-        // pick a random band from data and replace the data with it    
+  
         const randomIndex = Math.floor(Math.random() * data.length);
         const randomBand = data[randomIndex];
         band = {
-            ...randomBand,
-            image: `${mediaUrl}bands/${randomBand.slug}.jpg`
+          ...randomBand,
+          image: `${mediaUrl}bands/${randomBand.slug}.jpg`,
+          bio: randomBand.bio.slice(0, 200) + '...'
         };
-
-        // and cut the bio to 200 characters
-        band.bio = band.bio.slice(0, 200) + '...';
-        } catch (err) {
+      } catch (err) {
         error = err.message;
-        } finally {
+      } finally {
         loading = false;
-        }
+      }
     }
-    
+  
     onMount(loadRandomBand);
-    
+  
     function refresh() {
-        loading = true;
-        loadRandomBand();
+      loading = true;
+      loadRandomBand();
     }
-</script>
-
-<div class="card">
+  </script>
+  
+  <div class="card">
     {#if loading}
-    <p>Cargando...</p>
+      <SkeletonCard lines={4} />
     {:else if error}
-    <p style="color: red">{error}</p>
+      <p style="color: red">{error}</p>
     {:else}
-    <div class="name">{band.name}</div>
-    <img src={band.image} alt={band.name} style="width: 100%; border-radius: 10px; margin-bottom: 1rem;" />
-    <div class="bio">{@html band.bio}</div>
-
-
-    <button on:click={refresh}>Refrescar</button>
+      <div class="name">{band.name}</div>
+      <img src={band.image} alt={band.name} style="width: 100%; border-radius: 10px; margin-bottom: 1rem;" />
+      <div class="bio">{@html band.bio}</div>
+      <button on:click={refresh}>Refrescar</button>
     {/if}
-</div>
+  </div>
+  

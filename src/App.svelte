@@ -13,8 +13,10 @@
 	import Artists from './routes/Artists.svelte';
 	import Venues from './routes/Venues.svelte';
 	import Events from './routes/Events.svelte';
-	import Event from './routes/Event.svelte';
 	import Login from './routes/Login.svelte';
+    import ArtistDetail from './routes/ArtistDetail.svelte';
+    import EventDetail from './routes/EventDetail.svelte';
+	import NewsDetail from './routes/NewsDetail.svelte';
 
 	// Detectar cambios de ruta y aplicar metatags automáticamente
 	url.subscribe((path) => {
@@ -42,10 +44,12 @@
 	<Router>
 		<Route path="/" component={Home} />
 		<Route path="/news" component={News} />
+		<Route path="/news/:slug" component={NewsDetail} />
 		<Route path="/artists" component={Artists} />
+		<Route path="/artists/:id" component={ArtistDetail} />
 	  <Route path="/venues" component={Venues} />
 	  <Route path="/events" component={Events} />
-	  <Route path="/events/:slug" component={Event} />
+	  <Route path="/events/:slug" component={EventDetail} />
 	  <Route path="/login" component={Login} />
 	</Router>
   </main>

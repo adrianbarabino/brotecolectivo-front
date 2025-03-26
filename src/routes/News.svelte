@@ -68,7 +68,7 @@
                 </div>
               {/if}
     
-              <button class="more-btn">Ver más detalles</button>
+              <a class="more-btn" href={`/news/${n.slug}`}>Ver más detalles</a>
             </div>
           {/each}
         </div>
