@@ -6,7 +6,7 @@ html, body {
 
 body {
 	background: linear-gradient(180deg, #060606 18%, #060606 18%, #fff 18%, #fff 19%, #252525 0%);
-	background-color:#252525;
+	background-color:#252525!important;
 	color: #333;
 	background-repeat:no-repeat;
 	margin: 0;
@@ -23,9 +23,6 @@ a:hover {
 	text-decoration: underline;
 }
 
-a:visited {
-	color: rgb(0,80,160);
-}
 
 label {
 	display: block;
@@ -71,33 +68,17 @@ main {
 	margin:0 auto;
 	color: #222;
 	min-height: 100vh;
-
+	padding-bottom:5em;
 	font-family: system-ui, sans-serif;
   }
 
-  h1 {
-	font-size: 2rem;
-	margin-bottom: 2rem;
-	text-align: center;
-  }
+ 
 
   .grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 	gap: 2rem;
   }
-
-  .card {
-	background: #fff;
-	border-radius: 10px;
-	padding: 1.5rem;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	transition: transform 0.2s ease;
-  }
-
 
 
   .title {
@@ -107,15 +88,7 @@ main {
 	color: #333;
   }
 
-  .content {
-	font-size: 0.95rem;
-	color: #555;
-	line-height: 1.4;
-	overflow: hidden;
-	display: -webkit-box;
-	-webkit-line-clamp: 6;
-	-webkit-box-orient: vertical;
-  }
+ 
 
   .bands {
 	margin-top: 0.8rem;
@@ -224,4 +197,12 @@ main {
   }
   main > section.container{
 	padding:1em 2em;
+  }
+  .card-img-top{
+    max-height:150px!important;
+    object-fit: cover;
+  }
+  .card-title{
+	font-family: 'Roboto', sans-serif;
+	font-weight:800;
   }

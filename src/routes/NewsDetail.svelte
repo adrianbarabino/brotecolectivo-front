@@ -1,63 +1,99 @@
 <script>
-    import { onMount } from 'svelte';
-    import { fetchWithCache } from '../utils/fetchWithCache.js';
-    import SkeletonCard from '../components/SkeletonCard.svelte';
-    import Header from '../components/Header.svelte';
-  
-    let newsItem = null;
-    let error = '';
-    let loading = true;
-  
-    const API = 'https://api.brotecolectivo.com';
-    const TOKEN = 'token-secreto';
-    const mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/';
-  
-    onMount(async () => {
-      try {
-        const slug = window.location.pathname.split('/').pop();
-        const news = await fetchWithCache('news', `${API}/news`, {
-          headers: {
-            Authorization: `Bearer ${TOKEN}`
-          }
-        });
-  
-        newsItem = news.find(n => n.slug === slug);
-        if (newsItem) {
-          newsItem.image = `${mediaUrl}news/${newsItem.slug}.jpg`;
-        }
+  import { onMount } from 'svelte';
+  import { fetchWithCache } from '../utils/fetchWithCache.js';
+  import SkeletonCard from '../components/SkeletonCard.svelte';
+  import Header from '../components/Header.svelte';
+  import { API, TOKEN, MEDIA_URL } from '../config.js';
+  import Sidebar from '../components/Sidebar.svelte';
+  import { links } from 'svelte-routing';
 
-        // si se encuntrar un [leermas] borrarlo
-        if (newsItem.content.includes('[leermas]')) {
-          newsItem.content = newsItem.content.replace('[leermas]', '');
+  let newsItem = null;
+  let error = '';
+  let loading = true;
+
+  onMount(async () => {
+    try {
+      const slug = window.location.pathname.split('/').pop();
+      const news = await fetchWithCache('news', `${API}/news/${slug}`, {
+        headers: {
+          Authorization: `Bearer ${TOKEN}`
         }
-  
-      } catch (err) {
-        error = err.message;
-      } finally {
-        loading = false;
+      });
+
+      newsItem = news;
+      if (newsItem) {
+        newsItem.image = `${MEDIA_URL}news/${newsItem.slug}.jpg`;
       }
+
+      if (newsItem.content.includes('[leermas]')) {
+        newsItem.content = newsItem.content.replace('[leermas]', '');
+      }
+
+    } catch (err) {
+      error = err.message;
+    } finally {
+      loading = false;
+    }
+  });
+
+  let breadcrumbs = ['Home', 'Noticias', 'Detalle'];
+
+  function formatDate(unixTimestamp) {
+    const date = new Date(unixTimestamp * 1000);
+    return date.toLocaleDateString('es-AR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
     });
-  
-    let breadcrumbs = ['Home', 'Noticias', 'Detalle'];
-  </script>
-  
-  <Header title={newsItem ? newsItem.title : "Detalle de Noticia"} subhead="Leé la nota completa" breadcrumbs={breadcrumbs} />
-  
-  <section class="container">
+  }
+
+  function shareOn(platform) {
+    const url = window.location.href;
+    const text = newsItem.title;
+    if (platform === 'whatsapp') {
+      window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+    } else if (platform === 'twitter') {
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+    } else if (platform === 'facebook') {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+    }
+  }
+</script>
+
+<Header title={newsItem ? newsItem.title : "Detalle de Noticia"} subhead="Leé la nota completa" breadcrumbs={breadcrumbs} />
+
+<section class="container row">
+  <div class="col-md-8">
     {#if loading}
       <div class="grid">
         <SkeletonCard lines={5} />
       </div>
     {:else if error}
-      <p style="color: red">{error}</p>
+      <p class="error">{error}</p>
     {:else if !newsItem}
       <p>Noticia no encontrada.</p>
     {:else}
-      <div class="card">
-        <div class="title">{newsItem.title}</div>
-        <img src={newsItem.image} alt={newsItem.title} />
-        <div class="content">{@html newsItem.content}</div>
-  
+      <article class="news">
+        <figure class="news-header-image">
+          <img src={newsItem.image} alt={newsItem.title} />
+        </figure>
+
+        <header>
+          <h1 class="title">{newsItem.title}</h1>
+          <p class="date">Publicado el {formatDate(newsItem.date)}</p>
+        </header>
+
+        <div class="content">
+          {@html newsItem.content}
+        </div>
+
+        <div class="share">
+          <span>Compartir:</span>
+          <button on:click={() => shareOn('whatsapp')}><i class="fab fa-whatsapp"></i> WhatsApp</button>
+          <button on:click={() => shareOn('facebook')}><i class="fab fa-facebook"></i> Facebook</button>
+          <button on:click={() => shareOn('twitter')}><i class="fab fa-x"></i> X</button>
+        </div>
+
         {#if newsItem.bands && newsItem.bands.length > 0}
           <div class="bands">
             <strong>Bandas asociadas:</strong>
@@ -68,40 +104,107 @@
             </ul>
           </div>
         {/if}
-      </div>
+      </article>
     {/if}
-  </section>
-  
-  <style>
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 2rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      margin-bottom: 2rem;
-    }
-  
-    img {
-      max-width: 100%;
-      border-radius: 10px;
-      margin: 1rem 0;
-    }
-  
+    <a href="/news" use:links class="btn btn-primary mt-2">Volver a noticias</a>
+  </div>
+
+  <Sidebar />
+</section>
+
+<style>
+  .error {
+    color: red;
+  }
+
+  .news {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  }
+
+  .news-header-image {
+    width: 100%;
+    max-height: 300px;
+    overflow: hidden;
+    margin: 0 0 1rem 0;
+    border-radius: 12px;
+  }
+
+  .news-header-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  .title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+  }
+
+  .date {
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 1.5rem;
+  }
+
+  .share {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .share span {
+    font-weight: bold;
+    margin-right: 0.5rem;
+  }
+
+  .share button {
+    background: #f0f0f0;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .share button:hover {
+    background-color: #e0e0e0;
+  }
+
+  .bands {
+    font-size: 0.95rem;
+    color: #555;
+    margin-top: 2rem;
+  }
+
+  .bands ul {
+    padding-left: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .bands li {
+    list-style-type: disc;
+  }
+
+  @media (max-width: 600px) {
     .title {
-      font-size: 1.8rem;
-      font-weight: bold;
-      margin-bottom: 1rem;
+      text-align: center;
     }
-  
-    .content {
-      font-size: 1rem;
-      line-height: 1.6;
-      color: #444;
+
+    .news-header-image img {
+      max-height: 300px;
     }
-  
-    .bands {
-      margin-top: 2rem;
-      font-size: 0.95rem;
-    }
-  </style>
-  
+  }
+
+  .titleContainer {
+    align-content: space-evenly;
+  }
+</style>

@@ -1,8 +1,23 @@
 <script>
-      import { link } from 'svelte-routing';
-      import { url } from '../stores/url.js';
-      $: current = $url;
-  </script>
+import { user } from '../stores/user.js';
+import { link, navigate } from 'svelte-routing';
+import { url } from '../stores/url.js';
+
+$: current = $url;
+
+  function logout() {
+  localStorage.removeItem('access_token');
+  user.set({
+    email: '',
+    id: '',
+    name: '',
+    role: '',
+    loggedIn: false
+  });
+  navigate('/'); // redirecciona al home después de salir
+}
+
+ </script>
   
   <style>
     nav {
@@ -67,6 +82,44 @@
         margin-top: 0.5rem;
       }
     }
+
+    .dropdown {
+  position: relative;
+  margin:0;
+  padding:0;    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    text-transform: lowercase;
+    padding: 0.4rem 0.6rem;
+    border-radius: 5px;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #111;
+  border: 1px solid #333;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  z-index: 1001;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 0.3rem 0;
+  color: #fff;
+}
+
+.dropdown-menu a:hover {
+  color: #00cc3d;
+}
+
   </style>
   
   <nav>
@@ -75,16 +128,33 @@
 
   <div class="logo">
     <figure>
-      <img src="/img/logo.png" alt="Logo" width="180" />
+      <a href="/" use:link><img src="/img/logo.png" alt="Logo" width="180" /></a>
     </figure>
   </div>
   <div class="nav-links">
-    <a href="/" use:link class:active={current === '/'}>Inicio<small>del sitio</small></a>
-    <a href="/news" use:link class:active={current === '/news'}>Noticias<small>culturales</small></a>
+    <a href="/" use:link class:active={current === '/'}>Inicio<small>y noticias</small></a>
     <a href="/artists" use:link class:active={current === '/artists'}>Artistas<small>de la provincia</small></a>
     <!-- <a href="/venues" use:link class:active={current === '/venues'}>Espacios culturales</a> -->
     <a href="/events" use:link class:active={current === '/events'}>Agenda Cultural<small>eventos</small></a>
-    <!-- <a href="/login" use:link class:active={current === '/login'}>Iniciar sesión</a> -->
-  </div>
+    {#if $user.loggedIn}
+    <div class="dropdown">
+      <a href="/my-account" use:link>
+        {$user.name}
+        <small>Mi cuenta</small>
+      </a>
+      <div class="dropdown-menu">
+        <a href="#" on:click|preventDefault={logout}>Salir</a>
+      </div>
+    </div>
+  {:else}
+    <a href="/login" use:link class:active={current === '/login'}>
+      Iniciar sesión
+      <small>en tu cuenta</small>
+    </a>
+  {/if}
+  
+  
+  
+</div>
 </section>
 </nav>

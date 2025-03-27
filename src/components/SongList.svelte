@@ -2,14 +2,12 @@
     import { onMount } from 'svelte';
     import SkeletonCard from './SkeletonCard.svelte';
     import { fetchWithCache } from '../utils/fetchWithCache.js';
-  
+    import { API, TOKEN, MEDIA_URL } from '../config.js';
+
     let songs = [];
     let error = '';
     let loading = true;
-    const API = 'https://api.brotecolectivo.com';
-    const TOKEN = 'token-secreto';
-    const mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/songs/';
-  
+
     onMount(async () => {
       try {
         songs = await fetchWithCache('songs', `${API}/songs`, {
@@ -83,7 +81,7 @@
           </div>
   
           <audio controls>
-            <source src={`${mediaUrl}${song.slug}.mp3`} type="audio/mpeg" />
+            <source src={`${MEDIA_URL}${song.slug}.mp3`} type="audio/mpeg" />
             Tu navegador no soporta audio HTML5.
           </audio>
         </div>

@@ -3,13 +3,12 @@
   import VenueCard from '../components/VenueCard.svelte';
   import SkeletonCard from '../components/SkeletonCard.svelte';
   import { fetchWithCache } from '../utils/fetchWithCache.js';
+  import { API, TOKEN, MEDIA_URL } from '../config.js';
 
   let venues = [];
   let error = '';
   let loading = true;
 
-  const API = 'https://api.brotecolectivo.com';
-  const TOKEN = 'token-secreto';
 
   onMount(async () => {
     try {

@@ -1,6 +1,9 @@
 
 <script>
-    import { onMount, tick } from 'svelte';
+import { playerStore } from '../stores/playerStore.js';
+import { API, TOKEN, MEDIA_URL } from '../config.js';
+
+import { onMount, tick } from 'svelte';
     let isPlaying = false;
     let showPlaylist = false;
     let showLyrics = false;
@@ -10,10 +13,8 @@
     let songs = [];
     let error = '';
     let loading = true;
-    let mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/';
     let currentSongIndex = 0;
   
-    const API = 'https://api.brotecolectivo.com';
   
     let audioElement;
     let coverElement;
@@ -27,19 +28,16 @@
     songs = await res.json();
     loading = false;
 
-    await tick(); // Esperamos al DOM
+    await tick();
 
     if (audioElement) {
       audioElement.volume = volume;
 
-      // Intentamos recuperar estado
       const saved = localStorage.getItem('brote-player');
       if (saved) {
         const state = JSON.parse(saved);
         currentSongIndex = state.index || 0;
-
         await loadSong(currentSongIndex);
-
         audioElement.currentTime = state.time || 0;
 
         if (state.playing) {
@@ -50,12 +48,26 @@
       }
     }
 
+    // 👇 Esto va al final de onMount
+    playerStore.set({
+      songs,
+      currentSongIndex,
+      isPlaying,
+      loadSong,
+      playSong
+    });
+
   } catch (err) {
     error = err.message;
     loading = false;
   }
 });
 
+$: playerStore.update(store => ({
+  ...store,
+  currentSongIndex,
+  isPlaying
+}));
 
 function handleVolumeClick(e) {
   const bar = e.currentTarget.querySelector('.custom-volume-bar');
@@ -79,8 +91,8 @@ async function loadSong(index) {
     return;
   }
 
-  audioElement.src = `${mediaUrl}songs/${song.id}-${song.band_id}.mp3`;
-  coverElement.src = `${mediaUrl}bands/${song.band.slug}.jpg`;
+  audioElement.src = `${MEDIA_URL}songs/${song.id}-${song.band_id}.mp3`;
+  coverElement.src = `${MEDIA_URL}bands/${song.band.slug}.jpg`;
 
   audioElement.load();
 

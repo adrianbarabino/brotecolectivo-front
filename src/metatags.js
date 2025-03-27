@@ -1,3 +1,5 @@
+import { SITE_URL } from './config.js';
+
 export const metatags = {
     default: {
       title: "Brote Colectivo",
@@ -5,8 +7,8 @@ export const metatags = {
       openGraph: {
         title: "Brote Colectivo",
         description: "Explorá la cultura independiente en un solo lugar.",
-        url: "https://brotecolectivo.com/",
-        image: "https://brotecolectivo.com/logo.png",
+        url: `${SITE_URL}/`,
+        image: `${SITE_URL}/logo.png`,
         type: "website",
         locale: "es_ES",
       },
@@ -14,7 +16,7 @@ export const metatags = {
         card: "summary_large_image",
         title: "Brote Colectivo",
         description: "Cultura viva y colaborativa.",
-        image: "https://brotecolectivo.com/logo.png",
+        image: `${SITE_URL}/logo.png`,
       },
     },
   
@@ -24,13 +26,13 @@ export const metatags = {
       openGraph: {
         title: "Inicio | Brote Colectivo",
         description: "Lo último del arte y la cultura independiente.",
-        url: "https://brotecolectivo.com/",
-        image: "https://brotecolectivo.com/logo.png",
+        url: `${SITE_URL}/`,
+        image: `${SITE_URL}/logo.png`,
       },
       twitter: {
         title: "Inicio | Brote Colectivo",
         description: "Novedades y cultura al alcance de todos.",
-        image: "https://brotecolectivo.com/logo.png",
+        image: `${SITE_URL}/logo.png`,
       },
     },
   
@@ -40,13 +42,13 @@ export const metatags = {
       openGraph: {
         title: "Artistas | Brote Colectivo",
         description: "Explorá el talento emergente.",
-        url: "https://brotecolectivo.com/artists",
-        image: "https://brotecolectivo.com/logo.png",
+        url: `${SITE_URL}/artists`,
+        image: `${SITE_URL}/logo.png`,
       },
       twitter: {
         title: "Artistas | Brote Colectivo",
         description: "Mirá quiénes hacen vibrar la escena cultural.",
-        image: "https://brotecolectivo.com/logo.png",
+        image: `${SITE_URL}/logo.png`,
       },
     },
   
@@ -56,13 +58,13 @@ export const metatags = {
       openGraph: {
         title: "Espacios Culturales | Brote Colectivo",
         description: "Teatro, música, arte y más.",
-        url: "https://brotecolectivo.com/venues",
-        image: "https://brotecolectivo.com/logo.png",
+        url: `${SITE_URL}/venues`,
+        image: `${SITE_URL}/logo.png`,
       },
       twitter: {
         title: "Espacios Culturales | Brote Colectivo",
         description: "Lugares que albergan el arte independiente.",
-        image: "https://brotecolectivo.com/logo.png",
+        image: `${SITE_URL}/logo.png`,
       },
     },
   
@@ -72,13 +74,13 @@ export const metatags = {
       openGraph: {
         title: "Agenda Cultural | Brote Colectivo",
         description: "Tu guía cultural diaria.",
-        url: "https://brotecolectivo.com/events",
-        image: "https://brotecolectivo.com/logo.png",
+        url: `${SITE_URL}/events`,
+        image: `${SITE_URL}/logo.png`,
       },
       twitter: {
         title: "Agenda Cultural | Brote Colectivo",
         description: "No te pierdas ningún evento.",
-        image: "https://brotecolectivo.com/logo.png",
+        image: `${SITE_URL}/logo.png`,
       },
     },
   
@@ -88,13 +90,13 @@ export const metatags = {
       openGraph: {
         title: "Iniciar sesión | Brote Colectivo",
         description: "Entrá y gestioná tu perfil y tus contenidos.",
-        url: "https://brotecolectivo.com/login",
-        image: "https://brotecolectivo.com/logo.png",
+        url: `${SITE_URL}/login`,
+        image: `${SITE_URL}/logo.png`,
       },
       twitter: {
         title: "Iniciar sesión | Brote Colectivo",
         description: "Accedé con tu cuenta.",
-        image: "https://brotecolectivo.com/logo.png",
+        image: `${SITE_URL}/logo.png`,
       },
     },
   
@@ -104,13 +106,13 @@ export const metatags = {
       openGraph: {
         title: "Panel de Usuario | Brote Colectivo",
         description: "Tu espacio para gestionar tu arte.",
-        url: "https://brotecolectivo.com/panel",
-        image: "https://brotecolectivo.com/logo.png",
+        url: `${SITE_URL}/panel`,
+        image: `${SITE_URL}/logo.png`,
       },
       twitter: {
         title: "Panel de Usuario | Brote Colectivo",
         description: "Gestión completa de tu presencia en la plataforma.",
-        image: "https://brotecolectivo.com/logo.png",
+        image: `${SITE_URL}/logo.png`,
       },
     },
   };

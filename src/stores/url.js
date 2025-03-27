@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-// export mediaUrl for use in another files
+// export MEDIA_URL for use in another files
 
 function createUrlStore() {
   const { subscribe, set } = writable(window.location.pathname);

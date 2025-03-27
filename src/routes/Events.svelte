@@ -4,14 +4,12 @@ import { onMount } from 'svelte';
   import { fetchWithCache } from '../utils/fetchWithCache.js';
   import SkeletonCard from '../components/SkeletonCard.svelte';
   import Header from '../components/Header.svelte';
+  import { API, TOKEN, MEDIA_URL } from '../config.js';
 
   let events = [];
   let error = '';
   let loading = true;
-  let mediaUrl = 'https://brotecolectivo.sfo3.cdn.digitaloceanspaces.com/';
 
-  const API = 'https://api.brotecolectivo.com';
-  const TOKEN = 'token-secreto';
 
   onMount(async () => {
     try {
@@ -24,7 +22,7 @@ import { onMount } from 'svelte';
       // Agregamos las URLs de imagen
       events = data.map(event => ({
         ...event,
-        image: `${mediaUrl}events/${event.slug}.jpg`
+        image: `${MEDIA_URL}events/${event.slug}.jpg`
       }));
 
     } catch (err) {
