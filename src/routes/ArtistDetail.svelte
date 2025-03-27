@@ -167,7 +167,7 @@
       <ul class="ps-3 mb-0">
         {#each events as e}
           <li class="mb-3">
-            <a href={`/events/${e.slug}`} use:links class="link-primary text-decoration-none">
+            <a href={`/agenda-cultural/${e.slug}`} use:links class="link-primary text-decoration-none">
               <strong>{new Date(e.date_start).toLocaleDateString()}</strong> – {e.title}
             </a><br />
             <small class="text-muted">{e.venue?.name}</small>
@@ -190,7 +190,7 @@
       <ul class="ps-3 mb-0">
         {#each news as n}
           <li class="mb-3">
-            <a href={`/news/${n.slug}`} use:links class="link-primary text-decoration-none">
+            <a href={`/noticias/${n.slug}`} use:links class="link-primary text-decoration-none">
               <strong>{new Date(Number(n.date) * 1000).toLocaleDateString()}</strong> – {n.title}
             </a>
           </li>

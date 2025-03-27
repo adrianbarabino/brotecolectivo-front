@@ -114,7 +114,7 @@ async function loadData() {
     <div class="row">
       {#each bands as band}
         <div class="col-md-4 mb-4">
-          <a href={`/artists/${band.id}`} use:links class="card-link-wrapper">
+          <a href={`/artistas/${band.id}`} use:links class="card-link-wrapper">
             <div class="card h-100 shadow-sm">
               <img src={band.image} class="card-img-top" alt={band.name} />
               <div class="card-body d-flex flex-column">

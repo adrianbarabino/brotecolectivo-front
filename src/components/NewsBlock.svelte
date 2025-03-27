@@ -104,7 +104,7 @@
       <p>No hay noticias disponibles.</p>
     {:else}
       <!-- Nota destacada -->
-      <a href={`/news/${news[0].slug}`} class="text-decoration-none text-dark">
+      <a href={`/noticias/${news[0].slug}`} class="text-decoration-none text-dark">
         <div class="card mb-4 shadow-sm border-0 position-relative">
           <div class="position-relative">
             <img src={news[0].image} class="card-img-top rounded-top" alt={news[0].title} />
@@ -121,7 +121,7 @@
       <div class="row">
         {#each news.slice(1) as n}
           <div class="col-md-4 mb-4">
-            <a href={`/news/${n.slug}`} class="text-decoration-none text-dark">
+            <a href={`/noticias/${n.slug}`} class="text-decoration-none text-dark">
               <div class="card h-100 shadow-sm border-0 position-relative">
                 <div class="position-relative">
                   <img src={n.image} class="card-img-top rounded-top" alt={n.title} />

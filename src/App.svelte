@@ -75,14 +75,14 @@
 		<Route path="/" component={Home} />
 		<Route path="/news-page/:page" component={Home} />
 		<Route path="/news" component={Home} />
-		<Route path="/news/:slug" component={NewsDetail} />
+		<Route path="/noticias/:slug" component={NewsDetail} />
 		<Route path="/artists" component={Artists} />
 		<Route path="/artists-page/:page" component={Artists} />
-		<Route path="/artists/:id" component={ArtistDetail} />
+		<Route path="/artistas/:id" component={ArtistDetail} />
 		<Route path="/venues" component={Venues} />
 		<Route path="/events" component={Events} />
 		<Route path="/events-page/:page" component={Events} />
-		<Route path="/events/:slug" component={EventDetail} />
+		<Route path="/agenda-cultural/:slug" component={EventDetail} />
 		<Route path="/my-account" component={MyAccount} />
 		<Route path="/login" component={Login} />
 

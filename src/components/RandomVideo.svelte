@@ -64,7 +64,7 @@
           <p class="mb-2">
 
             <strong>Banda:</strong> 
-            <a use:links href={`/bands/${video.bands[0].slug}`}>{video.bands[0].name}</a>
+            <a use:links href={`/artistas/${video.bands[0].slug}`}>{video.bands[0].name}</a>
           </p>
         {/if}
   

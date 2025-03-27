@@ -67,7 +67,7 @@
         <img src={band.image} alt={band.name} class="img-fluid rounded mb-2" />
         <p class="card-text">{@html band.bio}</p>
         <div class="d-flex justify-content-between">
-          <a href={`/bands/${band.slug}`} use:links class="btn btn-outline-primary btn-sm">Ver más</a>
+          <a href={`/artistas/${band.slug}`} use:links class="btn btn-outline-primary btn-sm">Ver más</a>
           {#if $playerStore.songs.find(s => s.band_id === band.id)}
             <button class="btn btn-success btn-sm" on:click={() => playSong(band.id)}>
               <i class="fas fa-play"></i> Escuchar

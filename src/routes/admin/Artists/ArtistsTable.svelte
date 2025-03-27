@@ -66,7 +66,7 @@
     }
   
     function viewBand(id) {
-      navigate(`/artists/${id}`);
+      navigate(`/artistas/${id}`);
     }
   
     function deleteBand(id) {

@@ -39,7 +39,7 @@
         <ul class="list-group list-group-flush">
           {#each events as e}
             <li class="list-group-item">
-              <a href={`/events/${e.id}`} use:links class="text-decoration-none text-dark d-block">
+              <a href={`/agenda-cultural/${e.id}`} use:links class="text-decoration-none text-dark d-block">
                 <strong>{new Date(e.date).toLocaleDateString()}</strong> – {e.name}
                 {#if e.venue}
                   <br /><small class="text-muted">📍 {e.venue.name}</small>

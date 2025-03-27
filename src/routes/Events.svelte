@@ -113,7 +113,7 @@
     <div class="row">
       {#each showPast ? visiblePastEvents : visibleUpcomingEvents as event}
         <div class="col-md-4 mb-4">
-          <Link to={`/events/${event.slug}`} class="card-link-wrapper">
+          <Link to={`/agenda-cultural/${event.slug}`} class="card-link-wrapper">
             <div class="card h-100 shadow-sm position-relative overflow-hidden">
               <div class="date-overlay">{event.displayDate}</div>
               <img src={event.image} alt={event.title} class="card-img-top" />
