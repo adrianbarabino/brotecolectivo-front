@@ -53,7 +53,6 @@
     <h2>Hola, {loggedUser.name}</h2>
     <p><strong>Email:</strong> {loggedUser.email}</p>
     <p><strong>Rol general:</strong> {loggedUser.role}</p>
-    <p><strong>Tipo de usuario:</strong> {loggedUser.user_type || 'visitante'}</p>
   
     <h3>Artistas vinculados</h3>
   

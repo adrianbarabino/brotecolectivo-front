@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@azure/msal-browser": "^4.9.0",
+    "@vincjo/datatables": "^1.14.9",
     "leaflet": "^1.9.4",
     "lucide-svelte": "^0.484.0",
     "sirv-cli": "^2.0.0",

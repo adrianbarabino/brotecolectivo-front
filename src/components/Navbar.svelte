@@ -140,11 +140,24 @@ $: current = $url;
     <div class="dropdown">
       <a href="/my-account" use:link>
         {$user.name}
+        {#if $user.role === 'admin'}
+        <small>Administrador</small>
+
+        {:else}
         <small>Mi cuenta</small>
+
+      {/if}
       </a>
       <div class="dropdown-menu">
         <a href="#" on:click|preventDefault={logout}>Salir</a>
+        {#if $user.role === 'admin'}
+        <a href="/admin" use:link class:active={current === '/admin'}>
+          Admin
+        </a>
+      {/if}
       </div>
+
+
     </div>
   {:else}
     <a href="/login" use:link class:active={current === '/login'}>
