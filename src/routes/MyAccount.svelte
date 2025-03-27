@@ -3,7 +3,7 @@
     import { user } from '../stores/user.js';
     import { onMount } from 'svelte';
     import { API, TOKEN, MEDIA_URL } from '../config.js';
-
+    import {links} from 'svelte-routing';
     let artistLinks = [];
     let loading = true;
     let error = '';
@@ -73,6 +73,8 @@
     {/if}
   
     <button on:click={solicitarVinculacion}>Solicitar vinculación con un artista</button>
+    <a href="/admin/artists/add" use:links class="btn btn-primary">Solicitar creación artista</a>
+    
   </section>
   
   <style>
