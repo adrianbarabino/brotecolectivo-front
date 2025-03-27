@@ -70,6 +70,10 @@ $: current = $url;
         {/if}
       </a>
       <div class="dropdown-menu">
+      <!-- Links para crear artista y evento -->
+      <a href="/admin/artists/add" use:link on:click={closeNavbar}>Nuevo artista</a>
+      <a href="/admin/events/add" use:link on:click={closeNavbar}>Nuevo evento</a>
+
         <a href="#" on:click|preventDefault={() => { logout(); closeNavbar(); }}>Salir</a>
         {#if $user.role === 'admin'}
         <a href="/admin" use:link on:click={closeNavbar} class:active={current === '/admin'}>Admin</a>

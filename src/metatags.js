@@ -8,7 +8,7 @@ export const metatags = {
         title: "Brote Colectivo",
         description: "Explorá la cultura independiente en un solo lugar.",
         url: `${SITE_URL}/`,
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
         type: "website",
         locale: "es_ES",
       },
@@ -16,7 +16,7 @@ export const metatags = {
         card: "summary_large_image",
         title: "Brote Colectivo",
         description: "Cultura viva y colaborativa.",
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
       },
     },
   
@@ -27,12 +27,12 @@ export const metatags = {
         title: "Inicio | Brote Colectivo",
         description: "Lo último del arte y la cultura independiente.",
         url: `${SITE_URL}/`,
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
       },
       twitter: {
         title: "Inicio | Brote Colectivo",
         description: "Novedades y cultura al alcance de todos.",
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
       },
     },
   
@@ -43,12 +43,12 @@ export const metatags = {
         title: "Artistas | Brote Colectivo",
         description: "Explorá el talento emergente.",
         url: `${SITE_URL}/artists`,
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
       },
       twitter: {
         title: "Artistas | Brote Colectivo",
         description: "Mirá quiénes hacen vibrar la escena cultural.",
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
       },
     },
   
@@ -59,12 +59,12 @@ export const metatags = {
         title: "Espacios Culturales | Brote Colectivo",
         description: "Teatro, música, arte y más.",
         url: `${SITE_URL}/venues`,
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
       },
       twitter: {
         title: "Espacios Culturales | Brote Colectivo",
         description: "Lugares que albergan el arte independiente.",
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
       },
     },
   
@@ -75,12 +75,12 @@ export const metatags = {
         title: "Agenda Cultural | Brote Colectivo",
         description: "Tu guía cultural diaria.",
         url: `${SITE_URL}/events`,
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
       },
       twitter: {
         title: "Agenda Cultural | Brote Colectivo",
         description: "No te pierdas ningún evento.",
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
       },
     },
   
@@ -91,12 +91,12 @@ export const metatags = {
         title: "Iniciar sesión | Brote Colectivo",
         description: "Entrá y gestioná tu perfil y tus contenidos.",
         url: `${SITE_URL}/login`,
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
       },
       twitter: {
         title: "Iniciar sesión | Brote Colectivo",
         description: "Accedé con tu cuenta.",
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
       },
     },
   
@@ -107,12 +107,12 @@ export const metatags = {
         title: "Panel de Usuario | Brote Colectivo",
         description: "Tu espacio para gestionar tu arte.",
         url: `${SITE_URL}/panel`,
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
       },
       twitter: {
         title: "Panel de Usuario | Brote Colectivo",
         description: "Gestión completa de tu presencia en la plataforma.",
-        image: `${SITE_URL}/logo.png`,
+        image: `${SITE_URL}/img/rrss.jpg`,
       },
     },
   };

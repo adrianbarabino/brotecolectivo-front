@@ -81,6 +81,7 @@
         const data = await res.json();
         localStorage.setItem('access_token', data.token);
         user.set({
+          id: data.id,
           email: data.email,
           name: data.name,
           role: data.role,
@@ -116,6 +117,7 @@
       user.update(u => ({ ...u })); // fuerza actualización del store reactivo
 
       user.set({
+        id: data.id,
   email: data.email,
   name: data.name,
   role: data.role,
@@ -178,6 +180,7 @@
       user.update(u => ({ ...u })); // fuerza actualización del store reactivo
 
       user.set({
+        id: data.id,
   email: data.email,
   name: data.name,
   role: data.role,
@@ -226,6 +229,7 @@ window.handleGoogleResponse = async (response) => {
     const data = await res.json();
     localStorage.setItem('access_token', data.token);
     user.set({
+      id: data.id,
       email: data.email,
       name: data.name,
       role: data.role,

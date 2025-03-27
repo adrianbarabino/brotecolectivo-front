@@ -23,6 +23,10 @@
     import CreateArtist from './routes/admin/Artists/CreateArtist.svelte';
 	import SubmissionsTable from './routes/admin/Submissions/SubmissionsTable.svelte';
     import SubmissionEdit from './routes/admin/Submissions/SubmissionEdit.svelte';
+    import EventsTable from './routes/admin/Events/EventsTable.svelte';
+    import CreateEvent from './routes/admin/Events/CreateEvent.svelte';
+    import NewsTable from './routes/admin/News/NewsTable.svelte';
+    import CreateArticle from './routes/admin/News/CreateArticle.svelte';
 	// Placeholder para futuras secciones admin
 	// Podés reemplazar estos con sus componentes reales más adelante
 	const Placeholder = { render: () => 'En construcción...' };
@@ -89,13 +93,15 @@
 		<!-- Panel de administración -->
 		<Route path="/admin" component={Admin} />
 		<Route path="/admin/users" component={Placeholder} />
-		<Route path="/admin/news" component={Placeholder} />
+		<Route path="/admin/news" component={NewsTable} />
+		<Route path="/admin/news/add" component={CreateArticle} />
 		<Route path="/admin/artists" component={ArtistsTable} />
 		<Route path="/admin/artists/add" component={CreateArtist} />
 		<Route path="/admin/submissions" component={SubmissionsTable} />
 		<Route path="/admin/submissions/:id" component={SubmissionEdit} />
 		<Route path="/admin/venues" component={Placeholder} />
-		<Route path="/admin/events" component={Placeholder} />
+		<Route path="/admin/events" component={EventsTable} />
+		<Route path="/admin/events/add" component={CreateEvent} />
 		<Route path="/admin/videos" component={Placeholder} />
 		<Route path="/admin/songs" component={Placeholder} />
 	</Router>

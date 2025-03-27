@@ -27,6 +27,7 @@
     "sirv-cli": "^2.0.0",
     "svelte-countdown": "^1.1.2",
     "svelte-routing": "^2.13.0",
+    "svelte-select": "^5.8.3",
     "sweetalert2": "^11.17.2"
   }
 }
