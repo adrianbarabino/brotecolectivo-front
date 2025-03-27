@@ -61,12 +61,11 @@
         <h6 class="card-subtitle mb-2">{video.title}</h6>
 
         {#if video.bands && video.bands.length > 0}
-          <p class="mb-2">
-
-            <strong>Banda:</strong> 
-            <a use:links href={`/bands/${video.bands[0].slug}`}>{video.bands[0].name}</a>
-          </p>
-        {/if}
+  <p class="mb-2">
+    <strong>Banda:</strong> 
+    <a use:links href={`/artists/${video.bands[0].id}`}>{video.bands[0].name}</a>
+  </p>
+{/if}
   
       {/if}
     </div>
