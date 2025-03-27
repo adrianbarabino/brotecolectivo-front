@@ -11,6 +11,7 @@
       { label: 'Fechas', route: '/admin/events', icon: 'fas fa-calendar' },
       { label: 'Videos', route: '/admin/videos', icon: 'fas fa-video' },
       { label: 'Canciones', route: '/admin/songs', icon: 'fas fa-music' },
+      { label: 'Contribuciones', route:' /admin/submissions', icon: 'fas fa-file-alt' },
     ];
   
     $: currentUser = $user;

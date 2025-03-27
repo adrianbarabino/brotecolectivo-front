@@ -34,6 +34,21 @@
       currentPage = match ? parseInt(match[1]) : 1;
       loadData();
     });
+    function getPaginationPages(current, total) {
+  const pages = [];
+  if (total <= 7) {
+    for (let i = 1; i <= total; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (current > 3) pages.push('...');
+    for (let i = current - 1; i <= current + 1; i++) {
+      if (i > 1 && i < total) pages.push(i);
+    }
+    if (current < total - 2) pages.push('...');
+    pages.push(total);
+  }
+  return pages;
+}
   
     async function loadData() {
       loading = true;
@@ -124,26 +139,21 @@
       <!-- Paginación -->
 
       <nav class="my-4">
-        <ul class="pagination">
-          {#if currentPage > 1}
-            <li class="page-item">
-              <Link to={`/news-page/${currentPage - 1}`} class="page-link">Anterior</Link>
-            </li>
-          {/if}
-      
-          {#each Array(totalPages).fill(0).map((_, i) => i + 1) as i}
-            <li class="page-item {i === currentPage ? 'active' : ''}">
-              <Link to={`/news-page/${i}`} class="page-link">{i}</Link>
-            </li>
-          {/each}
-      
-          {#if currentPage < totalPages}
-            <li class="page-item">
-              <Link to={`/news-page/${currentPage + 1}`} class="page-link">Siguiente</Link>
-            </li>
+        <ul class="pagination justify-content-center">
+          {#if totalPages > 1}
+            {#each getPaginationPages(currentPage, totalPages) as p}
+              {#if p === '...'}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+              {:else}
+                <li class="page-item {p === currentPage ? 'active' : ''}">
+                  <Link to={`/news-page/${p}`} class="page-link">{p}</Link>
+                </li>
+              {/if}
+            {/each}
           {/if}
         </ul>
       </nav>
+      
     {/if}
   </div>
   
@@ -163,10 +173,7 @@
       padding: 0.4em 0.6em;
     }
   
-    .text-dark:hover .card {
-      transform: scale(1.01);
-      transition: transform 0.2s ease;
-    }
+
   
     .pagination .page-item.active .page-link {
       background-color: #000;

@@ -21,7 +21,8 @@
 	// Admin
 	import Admin from './routes/Admin.svelte';
     import CreateArtist from './routes/admin/Artists/CreateArtist.svelte';
-
+	import SubmissionsTable from './routes/admin/Submissions/SubmissionsTable.svelte';
+    import SubmissionEdit from './routes/admin/Submissions/SubmissionEdit.svelte';
 	// Placeholder para futuras secciones admin
 	// Podés reemplazar estos con sus componentes reales más adelante
 	const Placeholder = { render: () => 'En construcción...' };
@@ -29,7 +30,14 @@
 	onMount(() => {
 		const token = localStorage.getItem('access_token');
 		if (token) {
-			const payload = JSON.parse(atob(token.split('.')[1]));
+			// parse payload but fixing charset issues 
+			const base64Url = token.split('.')[1];
+			const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+			const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+				return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+			}).join(''));
+			const payload = JSON.parse(jsonPayload);
+			
 			user.set({
 				id: payload.user_id,
 				email: payload.user_name,
@@ -62,7 +70,7 @@
 
 <Navbar />
 
-<main>
+<main class="container">
 	<Router>
 		<Route path="/" component={Home} />
 		<Route path="/news-page/:page" component={Home} />
@@ -84,6 +92,8 @@
 		<Route path="/admin/news" component={Placeholder} />
 		<Route path="/admin/artists" component={ArtistsTable} />
 		<Route path="/admin/artists/add" component={CreateArtist} />
+		<Route path="/admin/submissions" component={SubmissionsTable} />
+		<Route path="/admin/submissions/:id" component={SubmissionEdit} />
 		<Route path="/admin/venues" component={Placeholder} />
 		<Route path="/admin/events" component={Placeholder} />
 		<Route path="/admin/videos" component={Placeholder} />

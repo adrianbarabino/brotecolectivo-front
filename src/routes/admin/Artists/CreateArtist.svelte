@@ -3,8 +3,10 @@
     import Swal from 'sweetalert2';
     import { API, TOKEN } from '../../../config.js';
     import Header from '../../../components/Header.svelte';
-    export let user = { id: 21, role: 'user' }; // esto viene del padre
-  
+
+    // toma rlos datos de user desde el store
+    import { user } from '../../../stores/user.js';
+
     let step = 1;
     let file;
     let slugModified = false;
@@ -40,7 +42,7 @@
   
     async function submitForm() {
   try {
-    const isAdmin = user.role === 'admin';
+    const isAdmin = $user.role === 'admin';
 
     // validación de slug (solo admins)
     if (isAdmin && await slugExists(artist.slug)) {
@@ -100,8 +102,8 @@ if (file && !isAdmin) {
     } else {
       // guardar como submission
       const submission = {
-        user_id: user.id,
-        type: 'banda',
+        user_id: $user.id,
+        type: 'band',
         data: artist
       };
 
@@ -176,8 +178,12 @@ if (file && !isAdmin) {
     let breadcrumbs = ['Home', 'Artistas'];
   </script>
   
-  <Header title="Crear Artista" subhead="Wizard de creación paso a paso" breadcrumbs={breadcrumbs} />
-  
+
+  {#if $user.role === 'admin'}
+    <Header title="Crear Artista" subhead="Wizard de creación paso a paso" breadcrumbs={breadcrumbs} admin />
+  {:else}
+    <Header title="Enviar Propuesta" subhead="Wizard de propuesta de artista" breadcrumbs={breadcrumbs} />
+  {/if}
   <div class="container my-4">
   
     <!-- Stepper -->

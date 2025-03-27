@@ -17,108 +17,20 @@ $: current = $url;
   navigate('/'); // redirecciona al home después de salir
 }
 
+
+// navbar-toggler function, for set the class active
+  function toggleNavbar() {
+    const navbar = document.querySelector('.navbar-collapse');
+    navbar.classList.toggle('show');
+  }
+  // close the navbar when click on a link
+  function closeNavbar() {
+    const navbar = document.querySelector('.navbar-collapse');
+    navbar.classList.remove('show');
+  }
  </script>
   
   <style>
-    nav {
-      background-color: #060606;
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-    nav .container{
-      width:100%;
-      display:flex;
-      max-width:1100px;
-      margin:0 auto;
-
-      align-items: center;
-      justify-content: space-between;
-    }
-  
-    .logo {
-      font-weight: bold;
-      font-size: 1.2rem;
-      color: #333;
-    }
-  
-    .nav-links {
-      display: flex;
-      gap: 1.2rem;
-    }
-  
-    a {
-      color: #ffffff;
-      text-decoration: none;
-      font-weight: 500;
-      text-transform:lowercase;
-      padding: 0.4rem 0.6rem;
-      border-radius: 5px;
-    }
-  
-    a:hover,
-    a.active {
-      background-color: transparent;
-      color: #00cc3d;
-    }
-
-    nav a small{
-      display:block;
-      color:#777;
-    }
-  
-    @media (max-width: 600px) {
-      nav {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .nav-links {
-        flex-direction: column;
-        gap: 0.6rem;
-        margin-top: 0.5rem;
-      }
-    }
-
-    .dropdown {
-  position: relative;
-  margin:0;
-  padding:0;    color: #ffffff;
-    text-decoration: none;
-    font-weight: 500;
-    text-transform: lowercase;
-    padding: 0.4rem 0.6rem;
-    border-radius: 5px;
-}
-
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: #111;
-  border: 1px solid #333;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  z-index: 1001;
-}
-
-.dropdown:hover .dropdown-menu {
-  display: block;
-}
-
-.dropdown-menu a {
-  display: block;
-  padding: 0.3rem 0;
-  color: #fff;
-}
-
-.dropdown-menu a:hover {
-  color: #00cc3d;
-}
 
   </style>
   
@@ -126,48 +38,47 @@ $: current = $url;
     <section class="container">
 
 
-  <div class="logo">
-    <figure>
+  <div class="logo row">
+    <figure class="col-10 col-md 12">
       <a href="/" use:link><img src="/img/logo.png" alt="Logo" width="180" /></a>
     </figure>
+<!-- BOTÓN -->
+<button 
+  class="navbar-toggler d-inline col-2 col-md-0 text-white d-md-none"  
+  on:click={toggleNavbar}
+  type="button"
+  aria-controls="navbarNav"
+  aria-expanded="false"
+  aria-label="Toggle navigation"
+>
+  <i class="fas fa-bars"></i>
+</button>
   </div>
-  <div class="nav-links">
-    <a href="/" use:link class:active={current === '/'}>Inicio<small>y noticias</small></a>
-    <a href="/artists" use:link class:active={current === '/artists'}>Artistas<small>de la provincia</small></a>
-    <!-- <a href="/venues" use:link class:active={current === '/venues'}>Espacios culturales</a> -->
-    <a href="/events" use:link class:active={current === '/events'}>Agenda Cultural<small>eventos</small></a>
+  <div class="nav-links collapse navbar-collapse" id="navbarNav">
+    <a href="/" use:link on:click={closeNavbar} class:active={current === '/'}>Inicio<small>y noticias</small></a>
+    <a href="/artists" use:link on:click={closeNavbar} class:active={current === '/artists'}>Artistas<small>de la provincia</small></a>
+    <a href="/events" use:link on:click={closeNavbar} class:active={current === '/events'}>Agenda Cultural<small>eventos</small></a>
+  
     {#if $user.loggedIn}
     <div class="dropdown">
-      <a href="/my-account" use:link>
+      <a href="/my-account" use:link on:click={closeNavbar}>
         {$user.name}
         {#if $user.role === 'admin'}
-        <small>Administrador</small>
-
+          <small>Administrador</small>
         {:else}
-        <small>Mi cuenta</small>
-
-      {/if}
+          <small>Mi cuenta</small>
+        {/if}
       </a>
       <div class="dropdown-menu">
-        <a href="#" on:click|preventDefault={logout}>Salir</a>
+        <a href="#" on:click|preventDefault={() => { logout(); closeNavbar(); }}>Salir</a>
         {#if $user.role === 'admin'}
-        <a href="/admin" use:link class:active={current === '/admin'}>
-          Admin
-        </a>
-      {/if}
+        <a href="/admin" use:link on:click={closeNavbar} class:active={current === '/admin'}>Admin</a>
+        {/if}
       </div>
-
-
     </div>
-  {:else}
-    <a href="/login" use:link class:active={current === '/login'}>
-      Iniciar sesión
-      <small>en tu cuenta</small>
-    </a>
-  {/if}
-  
-  
-  
-</div>
+    {:else}
+    <a href="/login" use:link on:click={closeNavbar} class:active={current === '/login'}>Iniciar sesión<small>en tu cuenta</small></a>
+    {/if}
+  </div>
 </section>
 </nav>

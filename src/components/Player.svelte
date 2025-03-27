@@ -210,8 +210,9 @@ function changeVolume(e) {
   {:else}
 <div class="player-bar">
   <img bind:this={coverElement} class="cover" alt="Cover" />
-  
-  <div class="song-info">
+
+
+  <div class="song-info  d-none d-md-block">
     <strong>{songs[currentSongIndex]?.title}</strong><br />
     <span>{songs[currentSongIndex]?.band.name}</span>
     <div class="time">
@@ -220,24 +221,24 @@ function changeVolume(e) {
   </div>
 
   <div class="controls">
-    <button on:click={playRandomSong}><i class="fas fa-random"></i></button>
+    <button on:click={playRandomSong} class=" d-none d-lg-block"><i class="fas fa-random"></i></button>
 
-    <button on:click={playPrevSong}><i class="fas fa-backward"></i></button>
+    <button on:click={playPrevSong}  ><i class="fas fa-backward"></i></button>
     <button class="play-center" on:click={togglePlay}>
         <i class={!isPlaying ? 'fas fa-play' : 'fas fa-pause'}></i>
       </button>
       
-      <button on:click={playNextSong}><i class="fas fa-forward"></i></button>
+      <button on:click={playNextSong}  ><i class="fas fa-forward"></i></button>
       <button on:click={togglePlaylist}><i class="fa-solid fa-list-ul"></i></button>
 
   </div>
 
-  <div class="timeline" on:click={seek}>
+  <div class="timeline d-none d-lg-block" on:click={seek}>
     <div class="progress" style="width: {duration ? (progress / duration) * 100 : 0}%"></div>
   </div>
   <i class="fas fa-volume-up volume-icon"></i>
 
-  <div class="custom-volume-wrapper" on:click={handleVolumeClick}>
+  <div class="custom-volume-wrapper  d-none d-md-block" on:click={handleVolumeClick}>
     <div class="custom-volume-bar">
       <div class="custom-volume-fill" style="width: {volume * 100}%"></div>
       <div class="custom-volume-thumb" style="left: {volume * 100}%"></div>
@@ -441,33 +442,6 @@ function changeVolume(e) {
   z-index: 1000;
 }
 
-/* Responsive tweaks */
-@media (max-width: 600px) {
-  .player-bar {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 10px;
-  }
-
-  .controls {
-    justify-content: center;
-    margin: 10px 0;
-  }
-
-  .volume-slider {
-    width: 100%;
-    margin: 10px 0;
-  }
-
-  .timeline {
-    margin: 10px 0;
-  }
-
-  .song-info {
-    text-align: center;
-    margin-bottom: 10px;
-  }
-}
 .volume-slider {
   -webkit-appearance: none;
   appearance: none;
@@ -532,6 +506,87 @@ function changeVolume(e) {
   border-radius: 50%;
   box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.3);
   pointer-events: none;
+}
+
+@media screen and (max-width: 600px) {
+    .player-bar {
+    width: 100%!important;
+}
+
+
+
+  .player-bar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .cover {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  .song-info {
+    flex: 1 1 100px;
+    min-width: 0;
+    font-size: 0.75rem;
+    overflow: hidden;
+  }
+
+  .song-info strong,
+  .song-info span {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .time {
+    display: none;
+  }
+
+  .controls {
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .timeline {
+    order: 5;
+    width: 100%;
+    margin: 5px 0;
+  }
+
+  .custom-volume-wrapper {
+    width: 60px;
+    height: 16px;
+    margin-left: 0;
+    order: 6;
+  }
+
+  .volume-icon {
+    display: none;
+  }
+
+  .playlist-floating {
+    width: 90%;
+    left: 5%;
+    bottom: 60px;
+  }
+
+  .lyrics-box {
+    max-height: 200px;
+    bottom: 70px;
+    font-size: 0.85rem;
+  }
+
+  .play-center {
+    font-size: 1.5rem;
+  }
 }
 
   </style>
