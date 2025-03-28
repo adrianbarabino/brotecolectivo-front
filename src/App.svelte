@@ -27,6 +27,7 @@
     import CreateEvent from './routes/admin/Events/CreateEvent.svelte';
     import NewsTable from './routes/admin/News/NewsTable.svelte';
     import CreateArticle from './routes/admin/News/CreateArticle.svelte';
+    import UsersTable from './routes/admin/Users/UsersTable.svelte';
 	// Placeholder para futuras secciones admin
 	// Podés reemplazar estos con sus componentes reales más adelante
 	const Placeholder = { render: () => 'En construcción...' };
@@ -92,7 +93,7 @@
 
 		<!-- Panel de administración -->
 		<Route path="/admin" component={Admin} />
-		<Route path="/admin/users" component={Placeholder} />
+		<Route path="/admin/users" component={UsersTable} />
 		<Route path="/admin/news" component={NewsTable} />
 		<Route path="/admin/news/add" component={CreateArticle} />
 		<Route path="/admin/artists" component={ArtistsTable} />

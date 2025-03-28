@@ -75,6 +75,12 @@
           } else {
             sub.name = '[Sin nombre]';
           }
+              // ACA LE AGREGÁS ESTO:
+    if (sub.type === 'eventvenue' && sub.data.event?.slug) {
+      sub.slugValue = sub.data.event.slug;
+    } else {
+      sub.slugValue = sub.data.slug || 'unknown';
+    }
         } else {
           sub.name = '[Sin nombre]';
         }
@@ -190,7 +196,7 @@ async function rechazar(id) {
             {#each submissions as sub (sub.id)}
               <tr>
                 <td>{sub.id}</td>
-                <td><img src="{MEDIA_URL}pending/{sub.data.slug}.jpg" width="100"/>  </td>
+                <td><img src="{MEDIA_URL}pending/{sub.slugValue}.jpg" width="100" /></td>
 
                 <td>{sub.type}</td>
                 <td>{sub.reviewer.realName}</td>

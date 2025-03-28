@@ -150,7 +150,41 @@ event.id_venue = parseInt(event.id_venue);
             return;
           }
         }
-  
+        if (!isAdmin && !creatingVenue) {
+  const submission = {
+    user_id: $user.id,
+    type: 'event',
+    data: event
+  };
+
+  const res = await fetch(`${API}/submissions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+    body: JSON.stringify(submission)
+  });
+
+  if (!res.ok) {
+    Swal.fire({ title: 'Error al enviar el evento', icon: 'error' });
+    return;
+  }
+
+  if (file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('slug', event.slug);
+
+    const uploadRes = await fetch(`${API}/submissions/upload-image`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${TOKEN}` },
+      body: formData
+    });
+  }
+
+  Swal.fire({ title: '¡Gracias!', text: 'Tu propuesta fue enviada para revisión.', icon: 'success' });
+  navigate('/');
+  return;
+}
+
         // Si es admin y venue ya creado o fue creado recién
         if (isAdmin) {
             event.id_venue = parseInt(event.id_venue);

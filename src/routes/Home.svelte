@@ -3,7 +3,16 @@
   import Header from '../components/Header.svelte';
   import { API, TOKEN, MEDIA_URL } from '../config.js';
   import Sidebar from '../components/Sidebar.svelte';
+  import { user } from '../stores/user';
+
+  console.log("Vamos a pasar los datos del user");
+  console.log($user);
+  console.log($user.id);
+  console.log($user.role);
+  
+  
   let breadcrumbs = ['Home', 'Noticias'];
+  
 </script>
 
 <Header title="Bienvenido a Brote Colectivo" subhead="sitio de difusión cultural en Santa Cruz, Argentina" breadcrumbs={breadcrumbs} />

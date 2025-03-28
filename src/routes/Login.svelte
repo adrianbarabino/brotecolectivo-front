@@ -80,6 +80,11 @@
       if (res.ok) {
         const data = await res.json();
         localStorage.setItem('access_token', data.token);
+        console.log("Estamos por dar el data");
+            let newToken = decodeJwt(data.token);
+    console.log(newToken);
+    data.id = newToken.user_id;
+        console.log(data);
         user.set({
           id: data.id,
           email: data.email,
@@ -116,6 +121,11 @@
       localStorage.setItem('access_token', data.token);
       user.update(u => ({ ...u })); // fuerza actualización del store reactivo
 
+      console.log("Estamos por dar el data");
+          let newToken = decodeJwt(data.token);
+    console.log(newToken);
+    data.id = newToken.user_id;
+      console.log(data);
       user.set({
         id: data.id,
   email: data.email,
@@ -143,7 +153,16 @@
   if (res.ok) {
     const data = await res.json();
     localStorage.setItem('access_token', data.token);
-    user.set({ email: data.email, name });
+    console.log("Estamos por dar el data");
+        let newToken = decodeJwt(data.token);
+    console.log(newToken);
+    data.id = newToken.user_id;
+    console.log(data);
+    user.set({ 
+      id: data.id,
+      role: data.role,
+      email: data.email,
+       name });
 
     await Swal.fire({
       icon: 'success',
@@ -165,38 +184,6 @@
 }
 
 
-
-  async function loginWithProvider(providerName) {
-    provider = providerName;
-    const res = await fetch( `${API}/auth/provider-login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, name, provider, token: '' })
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      localStorage.setItem('access_token', data.token);
-      user.update(u => ({ ...u })); // fuerza actualización del store reactivo
-
-      user.set({
-        id: data.id,
-  email: data.email,
-  name: data.name,
-  role: data.role,
-  loggedIn: true
-});
-
-      navigate('/');
-    } else {
-      await Swal.fire({
-  icon: 'error',
-  title: 'Error',
-  text: `No se pudo iniciar sesión con ${providerName}.`
-});
-
-    }
-  }
 
   function toggleForm() {
     isRegistering = !isRegistering;
@@ -228,6 +215,14 @@ window.handleGoogleResponse = async (response) => {
   if (res.ok) {
     const data = await res.json();
     localStorage.setItem('access_token', data.token);
+    console.log("Estamos por dar el data");
+        let newToken = decodeJwt(data.token);
+    console.log(newToken);
+    data.id = newToken.user_id;
+
+    // force data.id to int
+   
+
     user.set({
       id: data.id,
       email: data.email,
