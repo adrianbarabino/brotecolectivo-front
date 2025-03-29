@@ -4,27 +4,12 @@
     import { onMount } from 'svelte';
     import { API, TOKEN, MEDIA_URL } from '../config.js';
     import { links } from 'svelte-routing';
+    import UserBands from '../components/UserBands.svelte';
   
-    let artistLinks = [];
-    let loading = true;
+    let loading = false;
     let error = '';
   
     $: loggedUser = $user;
-  
-    onMount(async () => {
-      if (!loggedUser.loggedIn) return;
-  
-      try {
-        const res = await fetch(`${API}/users/${loggedUser.id}/artists`);
-        if (!res.ok) throw new Error('Error al obtener datos');
-  
-        artistLinks = await res.json();
-      } catch (err) {
-        error = 'No se pudo obtener la info del usuario';
-      } finally {
-        loading = false;
-      }
-    });
   
     async function solicitarVinculacion() {
       const artistId = prompt('Ingresá el ID del artista con el que querés vincularte:');
@@ -32,7 +17,10 @@
   
       const res = await fetch(`${API}/artist-link-request`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${TOKEN}`
+        },
         body: JSON.stringify({
           user_id: loggedUser.id,
           artist_id: artistId,
@@ -57,30 +45,13 @@
       <p><strong>Rol general:</strong> {loggedUser.role}</p>
     </div>
   
-    <div class="card">
-      <h3>Artistas vinculados</h3>
-  
-      {#if loading}
-        <p class="info">Cargando...</p>
-      {:else if error}
-        <p class="error">{error}</p>
-      {:else if artistLinks.length === 0}
-        <p class="info">No estás vinculado con ningún artista todavía.</p>
-      {:else}
-        <ul class="artist-list">
-          {#each artistLinks as link}
-            <li class="artist-item">
-              <span class="artist-name">{link.artist_name}</span>
-              <span class="rol">Rol: {link.rol}</span>
-              <span class="estado">Estado: {link.estado}</span>
-            </li>
-          {/each}
-        </ul>
-      {/if}
-    </div>
-  
+    {#if loggedUser.loggedIn}
+      <div class="card">
+        <UserBands userId={loggedUser.id} />
+      </div>
+    {/if}
+
     <div class="actions">
-      <button class="btn" on:click={solicitarVinculacion}>Solicitar vinculación con un artista</button>
       <a href="/admin/artists/add" use:links class="btn btn-primary">Solicitar creación de artista</a>
       <a href="/admin/events/add" use:links class="btn btn-primary">Solicitar creación de evento</a>
     </div>
@@ -174,4 +145,3 @@
       background-color: #0056b3;
     }
   </style>
-  

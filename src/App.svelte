@@ -21,6 +21,7 @@
 	// Admin
 	import Admin from './routes/Admin.svelte';
     import CreateArtist from './routes/admin/Artists/CreateArtist.svelte';
+    import EditArtist from './routes/admin/Artists/EditArtist.svelte';
 	import SubmissionsTable from './routes/admin/Submissions/SubmissionsTable.svelte';
     import SubmissionEdit from './routes/admin/Submissions/SubmissionEdit.svelte';
     import EventsTable from './routes/admin/Events/EventsTable.svelte';
@@ -99,6 +100,7 @@
 		<Route path="/admin/news/add" component={CreateArticle} />
 		<Route path="/admin/artists" component={ArtistsTable} />
 		<Route path="/admin/artists/add" component={CreateArtist} />
+		<Route path="/admin/artists/edit/:id" component={EditArtist} />
 		<Route path="/admin/submissions" component={SubmissionsTable} />
 		<Route path="/admin/submissions/:id" component={SubmissionEdit} />
 		<Route path="/admin/venues" component={Placeholder} />
