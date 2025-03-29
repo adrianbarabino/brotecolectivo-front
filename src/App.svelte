@@ -66,6 +66,7 @@
 		return 'default';
 	}
 
+	// Aplicar metatags iniciales basados en la ruta
 	url.subscribe((path) => {
 		const routeKey = getRouteKey(path);
 		applyMetatags(routeKey);

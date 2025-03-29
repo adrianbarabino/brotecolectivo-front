@@ -10,6 +10,7 @@
     let step = 1;
     let file;
     let slugModified = false;
+    let isSubmitting = false; // Estado para controlar el envío múltiple
   
     let artist = {
       name: '',
@@ -42,6 +43,10 @@
   
     async function submitForm() {
   try {
+    // Prevenir múltiples envíos
+    if (isSubmitting) return;
+    isSubmitting = true;
+
     const isAdmin = $user.role === 'admin';
 
     // validación de slug (solo admins)
@@ -51,6 +56,7 @@
         text: 'Ya existe un artista con ese slug. Por favor elegí otro.',
         icon: 'warning'
       });
+      isSubmitting = false; // Resetear el estado para permitir corregir y reenviar
       return;
     }
 
@@ -72,6 +78,7 @@ if (file && !isAdmin) {
       title: 'Error al subir imagen (temporal)',
       icon: 'error'
     });
+    isSubmitting = false; // Resetear el estado en caso de error
     return;
   }
 }
@@ -94,6 +101,7 @@ if (file && !isAdmin) {
           text: text,
           icon: 'error'
         });
+        isSubmitting = false; // Resetear el estado en caso de error
         return;
       }
 
@@ -123,6 +131,7 @@ if (file && !isAdmin) {
           text: text,
           icon: 'error'
         });
+        isSubmitting = false; // Resetear el estado en caso de error
         return;
       }
 
@@ -153,6 +162,7 @@ if (file && !isAdmin) {
           title: 'Error al subir imagen',
           icon: 'error'
         });
+        isSubmitting = false; // Resetear el estado en caso de error
         return;
       }
     }
@@ -171,9 +181,9 @@ if (file && !isAdmin) {
       text: error.message,
       icon: 'error'
     });
+    isSubmitting = false; // Resetear el estado en caso de error
   }
 }
-
   
     let breadcrumbs = ['Home', 'Artistas'];
   </script>
@@ -275,7 +285,14 @@ if (file && !isAdmin) {
   
           <div class="d-flex justify-content-between">
             <button type="button" class="btn btn-secondary" on:click={() => step = 2}>Atrás</button>
-            <button type="submit" class="btn btn-success">Crear Artista</button>
+            <button type="submit" class="btn btn-success" disabled={isSubmitting}>
+              {#if isSubmitting}
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Procesando...
+              {:else}
+                Crear Artista
+              {/if}
+            </button>
           </div>
         </div>
       {/if}

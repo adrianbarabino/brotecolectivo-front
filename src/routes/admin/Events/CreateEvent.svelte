@@ -13,6 +13,8 @@
     let bands = [];
     let file;
     let similarVenues = [];
+    let isSubmitting = false; // Estado para controlar el envío múltiple
+  
     function getNowForInput() {
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -89,6 +91,10 @@ event.id_venue = parseInt(event.id_venue);
   
     async function submitForm() {
       try {
+        // Prevenir múltiples envíos
+        if (isSubmitting) return;
+        isSubmitting = true;
+        
         const isAdmin = $user.role === 'admin';
         event.band_ids = selectedBandsIds.map(id => parseInt(id)); // ahora viene del select múltiple
 
@@ -105,6 +111,7 @@ event.id_venue = parseInt(event.id_venue);
             });
             if (!resVenue.ok) {
               Swal.fire({ title: 'Error al crear el lugar', icon: 'error' });
+              isSubmitting = false; // Resetear el estado en caso de error
               return;
             }
             const venueData = await resVenue.json();
@@ -130,6 +137,7 @@ event.id_venue = parseInt(event.id_venue);
   
             if (!res.ok) {
               Swal.fire({ title: 'Error al enviar el evento + lugar', icon: 'error' });
+              isSubmitting = false; // Resetear el estado en caso de error
               return;
             }
   
@@ -165,6 +173,7 @@ event.id_venue = parseInt(event.id_venue);
 
   if (!res.ok) {
     Swal.fire({ title: 'Error al enviar el evento', icon: 'error' });
+    isSubmitting = false; // Resetear el estado en caso de error
     return;
   }
 
@@ -198,6 +207,7 @@ event.id_venue = parseInt(event.id_venue);
           if (!res.ok) {
             const text = await res.text();
             Swal.fire({ title: 'Error al crear evento', text, icon: 'error' });
+            isSubmitting = false; // Resetear el estado en caso de error
             return;
           }
   
@@ -221,6 +231,7 @@ event.id_venue = parseInt(event.id_venue);
       } catch (error) {
         console.error(error);
         Swal.fire({ title: 'Error inesperado', text: error.message, icon: 'error' });
+        isSubmitting = false; // Resetear el estado en caso de error
       }
     }
   </script>
@@ -379,7 +390,14 @@ event.id_venue = parseInt(event.id_venue);
     
         <div class="d-flex justify-content-between">
           <button class="btn btn-secondary" type="button" on:click={() => step = 2}>Atrás</button>
-          <button class="btn btn-success" type="submit">Enviar</button>
+          <button class="btn btn-success" type="submit" disabled={isSubmitting}>
+            {#if isSubmitting}
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Procesando...
+            {:else}
+              Enviar
+            {/if}
+          </button>
         </div>
       </div>
     {/if}

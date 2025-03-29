@@ -6,6 +6,7 @@
   import { links } from 'svelte-routing';
   import { API, TOKEN, MEDIA_URL } from '../config.js';
   import Sidebar from '../components/Sidebar.svelte';
+  import { applyMetatags, generateArtistMetatags } from '../metatags.js';
 
   const iconClassMap = {
     facebook: 'fab fa-facebook-f',
@@ -93,6 +94,14 @@
 
       await fetchBandRelated(id);
 
+      applyMetatags('artist', {
+        name: band.name,
+        bio: band.bio,
+        image: band.image,
+        id: band.id,
+        slug: band.slug
+      });
+
     } catch (err) {
       error = err.message;
     } finally {
@@ -141,7 +150,12 @@
     <h5 class="mb-4 fw-semibold">Videos</h5>
     {#if currentVideo}
       <div class="ratio ratio-16x9 mb-4">
-        <iframe src={`https://www.youtube.com/embed/${currentVideo}`} frameborder="0" allowfullscreen></iframe>
+        <iframe 
+          src={`https://www.youtube.com/embed/${currentVideo}`} 
+          title="Video del artista" 
+          frameborder="0" 
+          allowfullscreen
+        ></iframe>
       </div>
       <div class="d-flex flex-wrap gap-2">
         {#each videos as v}

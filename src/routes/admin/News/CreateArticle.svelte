@@ -8,6 +8,7 @@
     let step = 1;
     let file;
     let slugModified = false;
+    let isSubmitting = false; // Estado para controlar el envío múltiple
   
     let news = {
       title: '',
@@ -42,12 +43,17 @@
   
     async function submitForm() {
       try {
+        // Prevenir múltiples envíos
+        if (isSubmitting) return;
+        isSubmitting = true;
+        
         if (await slugExists(news.slug)) {
           Swal.fire({
             title: 'Slug en uso',
             text: 'Ya existe una noticia con ese slug. Elegí otro.',
             icon: 'warning'
           });
+          isSubmitting = false; // Resetear el estado para permitir corregir y reenviar
           return;
         }
   
@@ -67,6 +73,7 @@
             text: text,
             icon: 'error'
           });
+          isSubmitting = false; // Resetear el estado en caso de error
           return;
         }
   
@@ -108,6 +115,7 @@
           text: error.message,
           icon: 'error'
         });
+        isSubmitting = false; // Resetear el estado en caso de error
       }
     }
   
@@ -119,13 +127,31 @@
   <div class="container my-4">
     <ul class="nav nav-pills mb-4 justify-content-center">
       <li class="nav-item">
-        <a class="nav-link {step === 1 ? 'active' : ''}">1. Datos Básicos</a>
+        <button 
+          class="nav-link {step === 1 ? 'active' : ''}" 
+          on:click={() => step = 1}
+          type="button"
+          aria-label="Ir al paso 1: Datos Básicos">
+          1. Datos Básicos
+        </button>
       </li>
       <li class="nav-item">
-        <a class="nav-link {step === 2 ? 'active' : ''}">2. Contenido + Imagen</a>
+        <button 
+          class="nav-link {step === 2 ? 'active' : ''}" 
+          on:click={() => step = 2}
+          type="button"
+          aria-label="Ir al paso 2: Contenido e Imagen">
+          2. Contenido + Imagen
+        </button>
       </li>
       <li class="nav-item">
-        <a class="nav-link {step === 3 ? 'active' : ''}">3. Confirmación</a>
+        <button 
+          class="nav-link {step === 3 ? 'active' : ''}" 
+          on:click={() => step = 3}
+          type="button"
+          aria-label="Ir al paso 3: Confirmación">
+          3. Confirmación
+        </button>
       </li>
     </ul>
   
@@ -133,23 +159,23 @@
       {#if step === 1}
         <div class="card p-4 shadow-sm">
           <div class="mb-3">
-            <label class="form-label">Título</label>
-            <input class="form-control" type="text" bind:value={news.title} required>
+            <label class="form-label" for="title">Título</label>
+            <input class="form-control" type="text" id="title" bind:value={news.title} required>
           </div>
   
           <div class="mb-3">
-            <label class="form-label">Slug</label>
-            <input class="form-control" type="text" bind:value={news.slug} on:input={() => slugModified = true}>
+            <label class="form-label" for="slug">Slug</label>
+            <input class="form-control" type="text" id="slug" bind:value={news.slug} on:input={() => slugModified = true}>
           </div>
   
           <div class="mb-3">
-            <label class="form-label">Fecha</label>
-            <input class="form-control" type="date" bind:value={news.date} required>
+            <label class="form-label" for="date">Fecha</label>
+            <input class="form-control" type="date" id="date" bind:value={news.date} required>
           </div>
   
           <div class="mb-3">
-            <label class="form-label">Bandas asociadas</label>
-            <select class="form-select" multiple bind:value={news.band_ids}>
+            <label class="form-label" for="bands-select">Bandas asociadas</label>
+            <select class="form-select" multiple id="bands-select" bind:value={news.band_ids}>
               {#each allBands as band}
                 <option value={band.id}>{band.name}</option>
               {/each}
@@ -163,13 +189,13 @@
       {#if step === 2}
         <div class="card p-4 shadow-sm">
           <div class="mb-3">
-            <label class="form-label">Contenido</label>
-            <textarea class="form-control" rows="10" bind:value={news.content}></textarea>
+            <label class="form-label" for="content">Contenido</label>
+            <textarea class="form-control" rows="10" id="content" bind:value={news.content}></textarea>
           </div>
   
           <div class="mb-3">
-            <label class="form-label">Imagen</label>
-            <input class="form-control" type="file" accept="image/*" on:change={(e) => file = e.target.files[0]}>
+            <label class="form-label" for="image-upload">Imagen</label>
+            <input class="form-control" type="file" id="image-upload" accept="image/*" on:change={(e) => file = e.target.files[0]}>
           </div>
   
           <div class="d-flex justify-content-between">
@@ -193,10 +219,16 @@
   
           <div class="d-flex justify-content-between">
             <button type="button" class="btn btn-secondary" on:click={() => step = 2}>Atrás</button>
-            <button type="submit" class="btn btn-success">Crear Noticia</button>
+            <button type="submit" class="btn btn-success" disabled={isSubmitting}>
+              {#if isSubmitting}
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Procesando...
+              {:else}
+                Crear Noticia
+              {/if}
+            </button>
           </div>
         </div>
       {/if}
     </form>
   </div>
-  
