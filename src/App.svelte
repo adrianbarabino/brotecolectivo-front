@@ -26,6 +26,7 @@
     import SubmissionEdit from './routes/admin/Submissions/SubmissionEdit.svelte';
     import EventsTable from './routes/admin/Events/EventsTable.svelte';
     import CreateEvent from './routes/admin/Events/CreateEvent.svelte';
+    import EditEvent from './routes/admin/Events/EditEvent.svelte';
     import NewsTable from './routes/admin/News/NewsTable.svelte';
     import CreateArticle from './routes/admin/News/CreateArticle.svelte';
     import UsersTable from './routes/admin/Users/UsersTable.svelte';
@@ -84,13 +85,18 @@
 		<Route path="/news" component={Home} />
 		<Route path="/noticias/:slug" component={NewsDetail} />
 		<Route path="/artists" component={Artists} />
+		<Route path="/artistas" component={Artists} />
 		<Route path="/artists-page/:page" component={Artists} />
 		<Route path="/artistas/:id" component={ArtistDetail} />
 		<Route path="/venues" component={Venues} />
 		<Route path="/events" component={Events} />
+		<Route path="/eventos" component={Events} />
+		<Route path="/agenda-cultural" component={Events} />
 		<Route path="/events-page/:page" component={Events} />
+		<Route path="/agenda-cultural-page/:page" component={Events} />
 		<Route path="/agenda-cultural/:slug" component={EventDetail} />
 		<Route path="/my-account" component={MyAccount} />
+		<Route path="/mi-cuenta" component={MyAccount} />
 		<Route path="/login" component={Login} />
 
 		<!-- Panel de administración -->
@@ -106,6 +112,7 @@
 		<Route path="/admin/venues" component={Placeholder} />
 		<Route path="/admin/events" component={EventsTable} />
 		<Route path="/admin/events/add" component={CreateEvent} />
+		<Route path="/admin/events/edit/:id" component={EditEvent} />
 		<Route path="/admin/videos" component={Placeholder} />
 		<Route path="/admin/songs" component={Placeholder} />
 	</Router>

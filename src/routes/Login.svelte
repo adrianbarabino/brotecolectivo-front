@@ -10,6 +10,8 @@
 
   import { onMount } from 'svelte';
 
+  let breadcrumbs = ['Home', 'Login'];
+
   onMount(() => {
     if (window.google && window.google.accounts && window.google.accounts.id) {
       window.google.accounts.id.initialize({
@@ -242,7 +244,7 @@ window.handleGoogleResponse = async (response) => {
 };
 
 </script>
-<Header title="Iniciar sesión" subhead="Ingresá con tu cuenta" />
+<Header title="Iniciar sesión" subhead="Ingresá con tu cuenta" breadcrumbs={breadcrumbs} />
 <section class="container row">
   <div class="col-md-8">
     <div class="card p-4 border-0 shadow-sm" style="width: 100%;">
@@ -283,10 +285,6 @@ window.handleGoogleResponse = async (response) => {
         {/if}
       </p>
     </div>
-
-
-  
-
-</div>
-<Sidebar />
+  </div>
+  <Sidebar />
 </section>

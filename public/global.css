@@ -139,7 +139,7 @@ main {
   #masthead .breadcrumbs {
 	position: absolute;
 	overflow: hidden;
-	top: 24px;
+	top: 0;
 	right: 24px;
 	height: auto;
 	font-size: 11px;
@@ -477,4 +477,8 @@ color: #00cc3d;
   left: 0;
   right: 0;
   z-index: 9999; /* asegurate de que quede por encima de todo */
+}
+
+.card-body h5 {
+    color: #888ea3!important;
 }

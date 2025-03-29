@@ -71,7 +71,8 @@ async function loadData() {
     const data = await res.json();
     totalBands = data.count;
     totalPages = Math.ceil(totalBands / bandsPerPage);
-
+    // invert order of bands
+    
     bands = bands.map(band => ({
       ...band,
       bio: band.bio.slice(0, 120) + '...',

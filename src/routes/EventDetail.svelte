@@ -150,7 +150,7 @@
             <ul class="list-unstyled">
               {#each event.bands as band}
                 <li class="mb-2">
-                  <a href={`/bandas/${band.slug}`} class="text-decoration-none d-flex align-items-center gap-2">
+                  <a href={`/bandas/${band.slug}`} use:links class="text-decoration-none d-flex align-items-center gap-2">
                     <img src={`${MEDIA_URL}bands/${band.slug}.jpg`} alt={band.name} style="width: 32px; height: 32px; object-fit: cover;" class="rounded-circle" />
                     <span>{band.name}</span>
                   </a>

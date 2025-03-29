@@ -21,6 +21,7 @@
   "dependencies": {
     "@azure/msal-browser": "^4.9.0",
     "@vincjo/datatables": "^1.14.9",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "leaflet": "^1.9.4",
     "lucide-svelte": "^0.484.0",

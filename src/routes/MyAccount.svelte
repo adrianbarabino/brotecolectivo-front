@@ -1,42 +1,19 @@
 <script>
     import Header from '../components/Header.svelte';
     import { user } from '../stores/user.js';
-    import { onMount } from 'svelte';
-    import { API, TOKEN, MEDIA_URL } from '../config.js';
     import { links } from 'svelte-routing';
     import UserBands from '../components/UserBands.svelte';
+    import UserEvents from '../components/UserEvents.svelte';
   
     let loading = false;
     let error = '';
+    let breadcrumbs = ['Home', 'Mi Cuenta'];
   
     $: loggedUser = $user;
   
-    async function solicitarVinculacion() {
-      const artistId = prompt('Ingresá el ID del artista con el que querés vincularte:');
-      if (!artistId) return;
-  
-      const res = await fetch(`${API}/artist-link-request`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${TOKEN}`
-        },
-        body: JSON.stringify({
-          user_id: loggedUser.id,
-          artist_id: artistId,
-          rol: 'colaborador'
-        })
-      });
-  
-      if (res.ok) {
-        alert('Solicitud enviada');
-      } else {
-        alert('Error al enviar solicitud');
-      }
-    }
   </script>
   
-  <Header title="Mi Cuenta" subhead="Tu información y vinculación artística" />
+  <Header title="Mi Cuenta" subhead="Tu información y vinculación artística" breadcrumbs={breadcrumbs} />
   
   <section class="container">
     <div class="card">
@@ -49,11 +26,17 @@
       <div class="card">
         <UserBands userId={loggedUser.id} />
       </div>
+
+      <div class="card">
+        <UserEvents userId={loggedUser.id} />
+      </div>
+
     {/if}
 
     <div class="actions">
       <a href="/admin/artists/add" use:links class="btn btn-primary">Solicitar creación de artista</a>
       <a href="/admin/events/add" use:links class="btn btn-primary">Solicitar creación de evento</a>
+      <a href="/admin/venues/add" use:links class="btn btn-primary">Solicitar creación de espacio cultural</a>
     </div>
   </section>
   

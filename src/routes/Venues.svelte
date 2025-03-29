@@ -4,11 +4,12 @@
   import SkeletonCard from '../components/SkeletonCard.svelte';
   import { fetchWithCache } from '../utils/fetchWithCache.js';
   import { API, TOKEN, MEDIA_URL } from '../config.js';
+  import Header from '../components/Header.svelte';
 
   let venues = [];
   let error = '';
   let loading = true;
-
+  let breadcrumbs = ['Home', 'Espacios Culturales'];
 
   onMount(async () => {
     try {
@@ -38,7 +39,7 @@
   }
 </style>
 
-<h1>Espacios culturales</h1>
+<Header title="Espacios Culturales" subhead="Conocé los espacios culturales de Santa Cruz" breadcrumbs={breadcrumbs} />
 
 {#if loading}
   <div class="venues-container">
