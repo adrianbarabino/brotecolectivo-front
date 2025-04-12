@@ -3,6 +3,7 @@
     import Swal from 'sweetalert2';
     import { API, TOKEN } from '../../../config.js';
     import Header from '../../../components/Header.svelte';
+    import RichTextEditor from '../../../components/RichTextEditor.svelte';
 
     // toma rlos datos de user desde el store
     import { user } from '../../../stores/user.js';
@@ -224,7 +225,7 @@ if (file && !isAdmin) {
   
           <div class="mb-3">
             <label class="form-label">Biografía</label>
-            <textarea class="form-control" rows="5" bind:value={artist.bio}></textarea>
+            <RichTextEditor bind:value={artist.bio} height="300px" placeholder="Escribe la biografía del artista..." />
           </div>
   
           <button type="button" class="btn btn-primary mt-2" on:click={() => step = 2}>Siguiente</button>
@@ -274,7 +275,12 @@ if (file && !isAdmin) {
           <ul class="list-group my-3">
             <li class="list-group-item"><strong>Nombre:</strong> {artist.name}</li>
             <li class="list-group-item"><strong>Slug:</strong> {artist.slug}</li>
-            <li class="list-group-item"><strong>Biografía:</strong> {artist.bio}</li>
+            <li class="list-group-item">
+              <strong>Biografía:</strong>
+              <div class="mt-2 p-3 bg-light rounded">
+                {@html artist.bio}
+              </div>
+            </li>
             <li class="list-group-item"><strong>Instagram:</strong> {artist.social.instagram}</li>
             <li class="list-group-item"><strong>Facebook:</strong> {artist.social.facebook}</li>
             <li class="list-group-item"><strong>YouTube:</strong> {artist.social.youtube}</li>
