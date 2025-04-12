@@ -6,7 +6,7 @@
     import SkeletonCard from '../components/SkeletonCard.svelte';
     import Sidebar from '../components/Sidebar.svelte';
     import { API, TOKEN, MEDIA_URL } from '../config.js';
-
+    import {links} from 'svelte-routing';
     import CountdownTimer from '../components/CountdownTimer.svelte';
     import L from 'leaflet';
 

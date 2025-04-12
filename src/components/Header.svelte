@@ -12,7 +12,14 @@
 
     // Map breadcrumb text to their corresponding routes
     function getBreadcrumbUrl(breadcrumb, index) {
-        const lowerBreadcrumb = breadcrumb.toLowerCase();
+        // If breadcrumb is an object with href property, use that
+        if (typeof breadcrumb === 'object' && breadcrumb !== null && breadcrumb.href) {
+            return breadcrumb.href;
+        }
+        
+        // Otherwise, handle as before
+        const breadcrumbText = typeof breadcrumb === 'string' ? breadcrumb : (breadcrumb?.name || '');
+        const lowerBreadcrumb = breadcrumbText.toLowerCase();
         
         if (index === 0 || lowerBreadcrumb === 'home') {
             return '/';
@@ -39,6 +46,11 @@
         // Return the mapped route or a fallback
         return routeMap[lowerBreadcrumb] || '#';
     }
+    
+    // Get the display text for a breadcrumb (handles both string and object)
+    function getBreadcrumbText(breadcrumb) {
+        return typeof breadcrumb === 'string' ? breadcrumb : (breadcrumb?.name || '');
+    }
 </script>
 <div id="masthead">
     <span class="head">{ title }</span><span class="subhead">{subhead }</span>
@@ -47,10 +59,10 @@
       <ul class="breadcrumbs">
         {#each breadcrumbs as breadcrumb, i}
           <li>
-            {#if i < breadcrumbs.length - 1 || breadcrumb.toLowerCase() !== 'detalle'}
-              <a href={getBreadcrumbUrl(breadcrumb, i)} use:links>{breadcrumb}</a>
+            {#if i < breadcrumbs.length - 1 || (typeof breadcrumb === 'string' ? breadcrumb.toLowerCase() !== 'detalle' : getBreadcrumbText(breadcrumb).toLowerCase() !== 'detalle')}
+              <a href={getBreadcrumbUrl(breadcrumb, i)} use:links>{getBreadcrumbText(breadcrumb)}</a>
             {:else}
-              <span>{breadcrumb}</span>
+              <span>{getBreadcrumbText(breadcrumb)}</span>
             {/if}
             {#if i < breadcrumbs.length - 1}
               <span> / </span>

@@ -4,6 +4,7 @@
     import { navigate } from 'svelte-routing';
     import Header from '../../../components/Header.svelte';
     import { DataHandler, Datatable, Th, ThFilter } from '@vincjo/datatables/remote';
+    import Swal from 'sweetalert2';
   
     const handler = new DataHandler([], {
       rowsPerPage: 10,
@@ -87,6 +88,81 @@
         });
       }
     }
+
+    // Función para publicar en Instagram
+    async function publishToInstagram(id) {
+      try {
+        // Confirmar antes de publicar
+        const result = await Swal.fire({
+          title: '¿Publicar en Instagram?',
+          text: 'Se publicará este evento en Instagram (feed y stories)',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, publicar',
+          cancelButtonText: 'Cancelar'
+        });
+        
+        if (!result.isConfirmed) {
+          return;
+        }
+        
+        // Mostrar indicador de carga
+        Swal.fire({
+          title: 'Publicando...',
+          text: 'Enviando a Instagram, por favor espera...',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        
+        // Llamar al endpoint para publicar en Instagram
+        const res = await fetch(`${API}/events/${id}/publish-instagram`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${TOKEN}`
+          }
+        });
+        
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Error ${res.status}: ${errorText}`);
+        }
+        
+        const data = await res.json();
+        
+        // Mostrar resultado
+        if (data.success) {
+          Swal.fire({
+            title: '¡Publicado!',
+            html: `
+              <p>El evento ha sido publicado en Instagram.</p>
+              ${data.feed.success ? '<p>✅ Feed: Publicado correctamente</p>' : '<p>❌ Feed: Error - ' + data.feed.message + '</p>'}
+              ${data.story.success ? '<p>✅ Story: Publicada correctamente</p>' : '<p>❌ Story: Error - ' + data.story.message + '</p>'}
+            `,
+            icon: 'success'
+          });
+        } else {
+          Swal.fire({
+            title: 'Publicación parcial',
+            html: `
+              <p>Hubo problemas al publicar en Instagram:</p>
+              ${data.feed.success ? '<p>✅ Feed: Publicado correctamente</p>' : '<p>❌ Feed: Error - ' + data.feed.message + '</p>'}
+              ${data.story.success ? '<p>✅ Story: Publicada correctamente</p>' : '<p>❌ Story: Error - ' + data.story.message + '</p>'}
+            `,
+            icon: 'warning'
+          });
+        }
+      } catch (error) {
+        console.error("Error al publicar en Instagram:", error);
+        Swal.fire({
+          title: 'Error',
+          text: error.message || 'No se pudo publicar en Instagram',
+          icon: 'error'
+        });
+      }
+    }
   
     let breadcrumbs = [
       { name: 'Home', href: '/' },
@@ -139,7 +215,10 @@
                 <td>
                   <button class="btn btn-sm btn-info me-1" on:click={() => viewEvent(row.id)}>👁️</button>
                   <button class="btn btn-sm btn-warning me-1" on:click={() => editEvent(row.id)}>✏️</button>
-                  <button class="btn btn-sm btn-danger" on:click={() => deleteEvent(row.id)}>🗑️</button>
+                  <button class="btn btn-sm btn-danger me-1" on:click={() => deleteEvent(row.id)}>🗑️</button>
+                  <button class="btn btn-sm btn-primary" on:click={() => publishToInstagram(row.id)}>
+                    <i class="bi bi-instagram"></i>
+                  </button>
                 </td>
               </tr>
             {/each}
@@ -148,4 +227,3 @@
       </Datatable>
     {/if}
   </div>
-  

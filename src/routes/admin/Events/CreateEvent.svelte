@@ -1,12 +1,20 @@
 <script>
     import { navigate } from 'svelte-routing';
     import Swal from 'sweetalert2';
-    import { API, TOKEN } from '../../../config.js';
+    import { API, TOKEN, MEDIA_URL } from '../../../config.js';
     import { user } from '../../../stores/user.js';
     import Header from '../../../components/Header.svelte';
     import MapSelector from '../../../components/MapSelector.svelte';
+    import RichTextEditor from '../../../components/RichTextEditor.svelte';
+    import { onMount } from 'svelte';
+    
     let selectedBandsIds = [];
     let imagePreview = '';
+    let lastTitleValue = ''; // Para evitar loops en la generación de slug
+  
+    onMount(() => {
+      console.log("[DEBUG] Usando TOKEN para todas las operaciones");
+    });
   
     let step = 1;
     let venues = [];
@@ -14,6 +22,8 @@
     let file;
     let similarVenues = [];
     let isSubmitting = false; // Estado para controlar el envío múltiple
+    let slugCheckTimeout;
+    let slugModified = false;
   
     function getNowForInput() {
       const now = new Date();
@@ -33,8 +43,13 @@
     };
   
     let creatingVenue = false;
-    $: creatingVenue = event.id_venue === 'new';
-  
+    $: {
+      // Solo actualizar cuando cambia el valor, no en cada ciclo de reactividad
+      if (event.id_venue === 'new') {
+        creatingVenue = true;
+      }
+    }
+    
     let newVenue = {
       name: '',
       address: '',
@@ -50,9 +65,13 @@
     // Lista de palabras comunes a excluir de las tags
     const commonWords = ['de', 'la', 'el', 'los', 'las', 'un', 'una', 'unos', 'unas', 'y', 'o', 'a', 'en', 'con', 'por', 'para', 'del'];
   
-    // Generar slug a partir del título
-    $: if (event.title) {
-      generateSlug();
+    // Generar slug a partir del título - Versión sin loop
+    function generateSlugFromTitle() {
+      if (!event.title || event.title === lastTitleValue || slugModified) return;
+      
+      lastTitleValue = event.title;
+      // Generar slug base a partir del título
+      let baseSlug = event.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').substring(0, 50);
       
       // Generar tags a partir del título
       const words = event.title.toLowerCase()
@@ -64,34 +83,56 @@
       if (!event.tags || event.tags === '') {
         event.tags = [...new Set(words)].join(', '); // Eliminar duplicados
       }
+      
+      // Asignar el slug sin verificar (la verificación se hará al enviar)
+      event.slug = baseSlug;
+    }
+    
+    // Usar un watcher simple en lugar de reactive statement para evitar loops
+    $: if (event.title) {
+      clearTimeout(slugCheckTimeout);
+      slugCheckTimeout = setTimeout(generateSlugFromTitle, 500);
     }
 
-    // Función para generar el slug y verificar disponibilidad
-    async function generateSlug() {
-      // Generar slug base a partir del título
-      let baseSlug = event.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').substring(0, 50);
+    // Variables para la búsqueda y filtrado de lugares
+    let venueSearchTerm = '';
+    $: filteredVenues = venues.filter(v => 
+      !venueSearchTerm || 
+      (v.name && v.name.toLowerCase().includes(venueSearchTerm.toLowerCase())) || 
+      (v.address && v.address.toLowerCase().includes(venueSearchTerm.toLowerCase()))
+    );
+
+    // Verificar si el slug ya existe - solo se llama al enviar el formulario
+    async function checkAndUpdateSlug() {
+      if (!event.slug) return false;
       
-      // Verificar si el slug ya existe
       try {
-        const res = await fetch(`${API}/events?search=${baseSlug}&limit=5`);
-        const events = await res.json();
+        const res = await fetch(`${API}/events/slug/${event.slug}`);
         
-        // Verificar si algún evento tiene exactamente el mismo slug
-        const slugExists = events.some(e => e.slug === baseSlug);
-        
-        if (slugExists) {
+        if (res.ok) {
+          // Si la respuesta es 200, significa que el slug ya existe
           // Agregar prefijo de fecha al slug (formato: dd-mm-)
           const date = new Date(event.date_start);
           const day = String(date.getDate()).padStart(2, '0');
           const month = String(date.getMonth() + 1).padStart(2, '0');
-          baseSlug = `${day}-${month}-${baseSlug}`;
+          const newSlug = `${day}-${month}-${event.slug}`;
+          
+          // Informar al usuario del cambio de slug
+          await Swal.fire({
+            title: 'Aviso',
+            text: `El slug "${event.slug}" ya estaba en uso. Se ha generado automáticamente "${newSlug}"`,
+            icon: 'info',
+            timer: 3000
+          });
+          
+          event.slug = newSlug;
+          return true; // Slug actualizado
         }
         
-        event.slug = baseSlug;
+        return false; // Slug no necesita actualización
       } catch (error) {
         console.error("Error al verificar disponibilidad del slug:", error);
-        // En caso de error, usar el slug base sin verificar
-        event.slug = baseSlug;
+        return false; // Continuar con el slug actual en caso de error
       }
     }
   
@@ -102,10 +143,6 @@
     // Actualizar fecha de fin automáticamente (2 horas después del inicio)
     $: if (event.date_start) {
       updateEndDate();
-      // Si la fecha cambió y el slug ya tiene prefijo de fecha, actualizarlo
-      if (event.slug && event.slug.match(/^\d{2}-\d{2}-/)) {
-        generateSlug();
-      }
     }
     
     function updateEndDate() {
@@ -160,6 +197,29 @@
         if (isSubmitting) return;
         isSubmitting = true;
         
+        // Validar que se haya seleccionado un lugar o se esté creando uno nuevo
+        if (!event.id_venue && !creatingVenue) {
+          Swal.fire({
+            title: 'Error',
+            text: 'Debes seleccionar un lugar para el evento',
+            icon: 'error'
+          });
+          isSubmitting = false;
+          step = 2; // Volver al paso donde se selecciona el lugar
+          return;
+        }
+        
+        // Validar que el nuevo lugar tenga nombre si se está creando uno
+        if (creatingVenue && !newVenue.name) {
+          Swal.fire({
+            title: 'Error',
+            text: 'Debes ingresar un nombre para el nuevo lugar',
+            icon: 'error'
+          });
+          isSubmitting = false;
+          return;
+        }
+        
         const isAdmin = $user.role === 'admin';
         event.band_ids = selectedBandsIds.map(id => parseInt(id)); // ahora viene del select múltiple
 
@@ -167,45 +227,10 @@
         if (!event.slug) {
           event.slug = event.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').substring(0, 50);
         }
-
-        // Verificar si el slug ya existe antes de continuar
-        try {
-          const slugCheckRes = await fetch(`${API}/events/slug/${event.slug}`);
-          if (slugCheckRes.ok) {
-            // Si la respuesta es 200, significa que el slug ya existe
-            console.log("Slug ya existe, generando uno nuevo");
-            const originalSlug = event.slug;
-            let counter = 1;
-            let slugExists = true;
-            
-            // Intentar con sufijos numéricos hasta encontrar uno disponible
-            while (slugExists && counter < 100) {
-              const newSlug = `${originalSlug}-${counter}`;
-              const newCheckRes = await fetch(`${API}/events/slug/${newSlug}`);
-              
-              if (!newCheckRes.ok) {
-                // Si la respuesta no es 200, el slug está disponible
-                event.slug = newSlug;
-                slugExists = false;
-                console.log("Nuevo slug generado:", event.slug);
-              } else {
-                counter++;
-              }
-            }
-            
-            // Informar al usuario del cambio de slug
-            Swal.fire({
-              title: 'Aviso',
-              text: `El slug "${originalSlug}" ya estaba en uso. Se ha generado automáticamente "${event.slug}"`,
-              icon: 'info',
-              timer: 3000
-            });
-          }
-        } catch (error) {
-          console.error("Error al verificar slug:", error);
-          // Continuamos con el proceso aunque falle la verificación
-        }
-
+        
+        // Verificar si el slug ya existe antes de continuar (una sola vez)
+        await checkAndUpdateSlug();
+        
         // PASO 1: Subir la imagen primero si existe
         if (file) {
           const formData = new FormData();
@@ -225,8 +250,8 @@
               return;
             }
             
-            // Esperar un momento para asegurarse de que la imagen esté disponible
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Imagen subida correctamente
+            console.log("Imagen subida correctamente");
           } catch (error) {
             console.error("Error al subir imagen:", error);
             Swal.fire({ title: 'Error al subir la imagen', text: error.message, icon: 'error' });
@@ -235,26 +260,54 @@
           }
         }
 
-        // PASO 2: Crear la submission o el evento
+        // PASO 2: Crear el evento o venue según corresponda
         if (creatingVenue) {
+          // Generar el slug para el venue si no existe
           newVenue.slug = newVenue.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').substring(0, 50);
   
           if (isAdmin) {
-            // Crear venue real
-            const resVenue = await fetch(`${API}/venues`, {
+            // Solución: Usar el endpoint de submissions que funciona correctamente
+            console.log("[DEBUG] Creando evento+venue a través de submissions");
+            
+            // Crear submission combinada para evento+venue (como hacíamos antes)
+            const submission = {
+              user_id: $user.id,
+              type: 'eventvenue',
+              data: {
+                venue: newVenue,
+                event: event
+              }
+            };
+            
+            const res = await fetch(`${API}/submissions`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
-              body: JSON.stringify(newVenue)
+              headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${TOKEN}`
+              },
+              body: JSON.stringify(submission)
             });
-            if (!resVenue.ok) {
-              Swal.fire({ title: 'Error al crear el lugar', icon: 'error' });
-              isSubmitting = false; // Resetear el estado en caso de error
+            
+            if (!res.ok) {
+              const text = await res.text();
+              Swal.fire({ 
+                title: 'Error al crear el evento y lugar', 
+                text: text || 'Error al enviar la solicitud',
+                icon: 'error' 
+              });
+              isSubmitting = false;
               return;
             }
-            const venueData = await resVenue.json();
-            console.log("El venue data es");
-            console.log(venueData);
-            event.id_venue = parseInt(venueData.id);
+            
+            // Mostrar mensaje de éxito
+            Swal.fire({ 
+              title: 'Evento y lugar creados con éxito', 
+              text: 'El evento y el lugar han sido creados y publicados automáticamente.',
+              icon: 'success' 
+            });
+            
+            navigate('/admin/events');
+            return;
           } else {
             // Crear submission combinada
             const submission = {
@@ -309,24 +362,34 @@
 
         // Si es admin y venue ya creado o fue creado recién
         if (isAdmin) {
-          event.id_venue = parseInt(event.id_venue);
-
-          const res = await fetch(`${API}/events`, {
+          // Usar el enfoque de submissions también para eventos sin venue nuevo
+          const submission = {
+            user_id: $user.id,
+            type: 'event',
+            data: event
+          };
+          
+          const res = await fetch(`${API}/submissions`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
-            body: JSON.stringify(event)
+            headers: { 
+              'Content-Type': 'application/json', 
+              'Authorization': `Bearer ${TOKEN}`
+            },
+            body: JSON.stringify(submission)
           });
 
           if (!res.ok) {
             const text = await res.text();
             Swal.fire({ title: 'Error al crear evento', text, icon: 'error' });
-            isSubmitting = false; // Resetear el estado en caso de error
+            isSubmitting = false;
             return;
           }
 
-          const { id, slug } = await res.json();
-
-          Swal.fire({ title: 'Evento creado con éxito', icon: 'success' });
+          Swal.fire({ 
+            title: 'Evento creado con éxito', 
+            text: 'El evento ha sido creado y publicado automáticamente.',
+            icon: 'success' 
+          });
           navigate('/admin/events');
         }
       } catch (error) {
@@ -337,6 +400,7 @@
     }
   
     let useAutoEndDate = true;
+
   </script>
   
   <Header title={$user.role === 'admin' ? 'Crear Evento' : 'Proponer Evento'} subhead="Formulario paso a paso" />
@@ -427,11 +491,20 @@
           
           <div class="mb-3">
             <label class="form-label">Contenido</label>
-            <textarea class="form-control" rows="5" bind:value={event.content}></textarea>
+            <RichTextEditor 
+              bind:value={event.content} 
+              height="300px"
+              placeholder="Escribe el contenido del evento aquí..."
+            />
           </div>
           <div class="mb-3">
             <label class="form-label">Tags</label>
             <input class="form-control" bind:value={event.tags}>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Slug</label>
+            <input class="form-control" bind:value={event.slug} on:input={() => slugModified = true}>
+            <div class="form-text">Identificador único para la URL del evento.</div>
           </div>
           <button class="btn btn-primary" type="button" on:click={() => {
             if (!file) {
@@ -456,51 +529,129 @@
       {#if step === 2}
         <div class="card p-4">
           <div class="mb-3">
-            <label class="form-label">Lugar</label>
-            <select class="form-select" bind:value={event.id_venue}>
-              <option value="" disabled selected>Seleccioná un lugar</option>
-              <option value="new">+ Crear nuevo lugar</option>
-
-              {#each venues as v}
-                <option value={v.id}>{v.name}</option>
-              {/each}
-            </select>
+            <label class="form-label">Lugar <span class="text-danger">*</span></label>
+            
+            <!-- Buscador de lugares -->
+            <div class="input-group mb-2">
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Buscar por nombre o dirección..." 
+                bind:value={venueSearchTerm}
+              />
+              <button 
+                class="btn btn-outline-primary" 
+                type="button"
+                on:click={() => creatingVenue = true}
+                title="Crear nuevo lugar"
+              >
+                <i class="bi bi-plus-circle"></i> Nuevo lugar
+              </button>
+            </div>
+            
+            <!-- Lista de lugares filtrados -->
+            {#if !creatingVenue}
+              <div class="list-group mb-2" style="max-height: 200px; overflow-y: auto;">
+                {#each filteredVenues as venue}
+                  <button 
+                    type="button" 
+                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {event.id_venue == venue.id ? 'active' : ''}"
+                    on:click={() => event.id_venue = venue.id}
+                  >
+                    <div>
+                      <strong>{venue.name}</strong>
+                      {#if venue.address}
+                        <div><small>{venue.address}</small></div>
+                      {/if}
+                    </div>
+                    {#if event.id_venue == venue.id}
+                      <i class="bi bi-check-circle"></i>
+                    {/if}
+                  </button>
+                {/each}
+                
+                {#if filteredVenues.length === 0 && venueSearchTerm}
+                  <div class="list-group-item text-center">
+                    <p class="mb-1">No se encontraron lugares con "{venueSearchTerm}"</p>
+                    <button 
+                      type="button" 
+                      class="btn btn-sm btn-primary"
+                      on:click={() => {
+                        creatingVenue = true;
+                        newVenue.name = venueSearchTerm;
+                      }}
+                    >
+                      Crear "{venueSearchTerm}"
+                    </button>
+                  </div>
+                {/if}
+              </div>
+              
+              {#if !venueSearchTerm && venues.length > 10}
+                <div class="text-muted mb-2">
+                  <small>Ingresa un término de búsqueda para filtrar los {venues.length} lugares disponibles</small>
+                </div>
+              {/if}
+              
+              <small class="form-text text-danger" class:d-none={event.id_venue || creatingVenue}>Debes seleccionar un lugar o crear uno nuevo</small>
+            {/if}
           </div>
-  
-
   
           {#if creatingVenue}
             <div class="bg-light p-3 rounded mb-3">
-              <h6>Nuevo lugar</h6>
-              <div class="mb-2"><input class="form-control" placeholder="Nombre" bind:value={newVenue.name}></div>
-              {#if similarVenues.length > 0}
-              <div class="alert alert-warning mt-2">
-                <strong>¡Ojo!</strong> Encontramos lugares con nombres parecidos:
-                <ul>
-                  {#each similarVenues as v}
-                    <li>
-                      <strong>{v.name}</strong>
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary ms-2"
-                        on:click={() => useSimilarVenue(v)}
-                      >
-                        Usar este
-                      </button>
-                    </li>
-                  {/each}
-                </ul>
-                <div class="text-end">
-                  <small>Podés ignorar esto y seguir completando el lugar.</small>
-                </div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">Crear nuevo lugar</h6>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-outline-secondary" 
+                  on:click={() => {
+                    creatingVenue = false;
+                    newVenue = { name: '', address: '', description: '', slug: '', latlng: '', city: '' };
+                  }}
+                >
+                  Cancelar
+                </button>
               </div>
-            {/if}
-            
+              
+              <div class="mb-2">
+                <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                <input class="form-control" placeholder="Nombre del lugar" bind:value={newVenue.name} required>
+              </div>
+              
+              {#if similarVenues.length > 0}
+                <div class="alert alert-warning mt-2">
+                  <strong>¡Ojo!</strong> Encontramos lugares con nombres parecidos:
+                  <ul class="mb-1">
+                    {#each similarVenues as v}
+                      <li>
+                        <strong>{v.name}</strong>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary ms-2"
+                          on:click={() => {
+                            event.id_venue = v.id;
+                            creatingVenue = false;
+                            newVenue = { name: '', address: '', description: '', slug: '', latlng: '', city: '' };
+                          }}
+                        >
+                          Usar este
+                        </button>
+                      </li>
+                    {/each}
+                  </ul>
+                  <div class="text-end">
+                    <small>Podés ignorar esto y seguir completando el lugar.</small>
+                  </div>
+                </div>
+              {/if}
+              
               <div class="mb-2">
                 <MapSelector bind:latlng={newVenue.latlng} bind:address={newVenue.address} bind:city={newVenue.city} />
-            </div>
-
-              <div class="mb-2"><textarea class="form-control" placeholder="Descripción" bind:value={newVenue.description}></textarea></div>
+              </div>
+              
+              <div class="mb-2">
+                <textarea class="form-control" placeholder="Descripción" bind:value={newVenue.description}></textarea>
+              </div>
             </div>
           {/if}
   
@@ -518,7 +669,18 @@
   
           <div class="d-flex justify-content-between">
             <button class="btn btn-secondary" type="button" on:click={() => step = 1}>Atrás</button>
-            <button class="btn btn-primary" type="button" on:click={() => step = 3}>Siguiente</button>
+            <button class="btn btn-primary" type="button" on:click={() => {
+              // Validar que se haya seleccionado un lugar o se esté creando uno nuevo
+              if (!event.id_venue && !creatingVenue) {
+                Swal.fire({
+                  title: 'Error',
+                  text: 'Debes seleccionar un lugar para el evento',
+                  icon: 'error'
+                });
+                return;
+              }
+              step = 3;
+            }}>Siguiente</button>
           </div>
         </div>
       {/if}
