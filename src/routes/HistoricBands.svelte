@@ -29,14 +29,16 @@
   />
   
   <Header
-    title="Línea de tiempo"
-    subhead="Momentos clave de la cultura santacruceña"
-    breadcrumbs={breadcrumbs}
-  />
+  title="Historia del Rock en Santa Cruz"
+  subhead="Una línea de tiempo de bandas, recitales y cultura alternativa"
+  breadcrumbs={breadcrumbs}
+/>
+
+
   
   <section class="container my-4">
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-12">
         <p>
             Presentamos esta linea de tiempo, que fue realizada con el apoyo de la comunidad de músicos locales en un grupo de Facebook en el año 2013. Si querés sumar tu material podés enviarlo a info@brotecolectivo.com así lo agregamos. 
             </p>
@@ -45,7 +47,6 @@
             </p>
         <div id="my-timeline" style="width: 100%; height: 600px;"></div>
       </div>
-      <Sidebar />
     </div>
   </section>
   
