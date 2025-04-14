@@ -14,6 +14,7 @@
 	import Events from './routes/Events.svelte';
 	import Login from './routes/Login.svelte';
 	import NewsDetail from './routes/NewsDetail.svelte';
+	import HistoricBands from './routes/HistoricBands.svelte';
 	import ArtistDetail from './routes/ArtistDetail.svelte';
 	import EventDetail from './routes/EventDetail.svelte';
 	import MyAccount from './routes/MyAccount.svelte';
@@ -130,6 +131,9 @@
 		<Route path="/news-page/:page" component={Home} />
 		<Route path="/news" component={Home} />
 		<Route path="/noticias/:slug" component={NewsDetail} />
+		<Route path="/noticia/:slug" component={NewsDetail} />
+		<Route path="/noticia/:day-:month-:slug" component={NewsDetail} />
+		<Route path="/bandas-historicas" component={HistoricBands} />
 		<Route path="/artists" component={Artists} />
 		<Route path="/artistas" component={Artists} />
 		<Route path="/artists-page/:page" component={Artists} />

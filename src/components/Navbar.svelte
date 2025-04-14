@@ -56,7 +56,14 @@ $: current = $url;
   </div>
   <div class="nav-links collapse navbar-collapse" id="navbarNav">
     <a href="/" use:link on:click={closeNavbar} class:active={current === '/'}>Inicio<small>y noticias</small></a>
+    <div class="dropdown">
+
     <a href="/artists" use:link on:click={closeNavbar} class:active={current === '/artists'}>Artistas<small>de la provincia</small></a>
+    </div>
+    <div class="dropdown-menu">
+      <a href="/bandas-historicas" use:link on:click={closeNavbar}>Bandas Históricas</a>
+
+    </div>
     <a href="/events" use:link on:click={closeNavbar} class:active={current === '/events'}>Agenda Cultural<small>eventos</small></a>
   
     {#if $user.loggedIn}
