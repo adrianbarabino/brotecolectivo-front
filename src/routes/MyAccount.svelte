@@ -36,7 +36,6 @@
     <div class="actions">
       <a href="/admin/artists/add" use:links class="btn btn-primary">Solicitar creación de artista</a>
       <a href="/admin/events/add" use:links class="btn btn-primary">Solicitar creación de evento</a>
-      <a href="/admin/venues/add" use:links class="btn btn-primary">Solicitar creación de espacio cultural</a>
     </div>
   </section>
   

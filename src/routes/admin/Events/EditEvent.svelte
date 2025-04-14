@@ -6,6 +6,7 @@
   import { user } from '../../../stores/user.js';
   import Header from '../../../components/Header.svelte';
   import MapSelector from '../../../components/MapSelector.svelte';
+  import RichTextEditor from '../../../components/RichTextEditor.svelte';
   
   // Obtener el ID del evento de los parámetros de la URL
   export let id;
@@ -20,6 +21,7 @@
   let bands = [];
   let file;
   let isSubmitting = false;
+  let isGeneratingDescription = false;
   let isLoading = true;
   let originalSlug = '';
   let slugModified = false;
@@ -354,6 +356,78 @@
       event.tags = [...new Set(words)].join(', ');
     }
   }
+  
+  async function generateDescriptionWithAI(customPrompt = '') {
+    try {
+      isGeneratingDescription = true;
+      
+      // Obtener el nombre del lugar
+      const venue = venues.find(v => v.id.toString() === event.id_venue);
+      
+      // Obtener los nombres de las bandas
+      const bandNames = selectedBandsIds.map(id => bands.find(b => b.id.toString() === id)?.name).filter(Boolean);
+      
+      // Formatear la fecha
+      const startDate = event.date_start ? new Date(event.date_start) : null;
+      const formattedDate = startDate ? startDate.toLocaleDateString('es-AR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : '';
+
+      const res = await fetch(`${API}/events/generate-description`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${TOKEN}`
+        },
+        body: JSON.stringify({
+          title: event.title,
+          venue_name: venue?.name || '',
+          venue_address: venue?.address || '',
+          date: formattedDate,
+          bands: bandNames,
+          custom_prompt: customPrompt
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error('Error al generar la descripción');
+      }
+
+      const data = await res.json();
+      event.content = data.description;
+
+    } catch (error) {
+      console.error('Error completo:', error);
+      Swal.fire({
+        title: 'Error',
+        text: error.message,
+        icon: 'error'
+      });
+    } finally {
+      isGeneratingDescription = false;
+    }
+  }
+
+  async function handleGenerateDescription() {
+    const { value: customPrompt } = await Swal.fire({
+      title: 'Generar descripción con IA',
+      input: 'textarea',
+      inputLabel: 'Información del evento',
+      inputPlaceholder: 'Describe el tipo de evento, artistas, lugar, fecha, hora y cualquier otro detalle relevante...',
+      showCancelButton: true,
+      confirmButtonText: 'Generar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (customPrompt !== undefined) {
+      generateDescriptionWithAI(customPrompt);
+    }
+  }
 </script>
 
 <Header title="Editar Evento" subhead="Modifica los datos del evento" breadcrumbs={breadcrumbs} admin />
@@ -368,13 +442,52 @@
   {:else}
     <!-- Wizard steps -->
     <ul class="nav nav-pills mb-4 justify-content-center">
-      <li class="nav-item"><a class="nav-link {step === 1 ? 'active' : ''}" on:click|preventDefault={() => step = 1}>1. Datos</a></li>
-      <li class="nav-item"><a class="nav-link {step === 2 ? 'active' : ''}" on:click|preventDefault={() => step = 2}>2. Lugar y Bandas</a></li>
-      <li class="nav-item"><a class="nav-link {step === 3 ? 'active' : ''}" on:click|preventDefault={() => step = 3}>3. Imagen</a></li>
+      <li class="nav-item">
+        <button class="nav-link {step === 1 ? 'active' : ''}" type="button">1. Lugar y Bandas</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link {step === 2 ? 'active' : ''}" type="button">2. Datos del Evento</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link {step === 3 ? 'active' : ''}" type="button">3. Confirmación</button>
+      </li>
     </ul>
     
     <form on:submit|preventDefault={submitForm}>
       {#if step === 1}
+        <div class="card p-4 shadow-sm">
+          <div class="mb-3">
+            <label class="form-label">Lugar</label>
+            <select class="form-select" bind:value={event.id_venue}>
+              <option value="" disabled>Selecciona un lugar</option>
+              {#each venues as venue}
+                <option value={venue.id.toString()}>{venue.name} - {venue.address}</option>
+              {/each}
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Bandas/Artistas</label>
+            <select class="form-select" multiple bind:value={selectedBandsIds} size="5">
+              {#each bands as band}
+                <option value={band.id.toString()}>{band.name}</option>
+              {/each}
+            </select>
+            <small class="text-muted">Mantén presionado Ctrl para seleccionar múltiples bandas</small>
+          </div>
+          
+          <div class="d-flex justify-content-between mt-3">
+            <button type="button" class="btn btn-outline-secondary" on:click={() => navigate('/admin/events')}>
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-primary" on:click={() => step = 2}>
+              Siguiente
+            </button>
+          </div>
+        </div>
+      {/if}
+      
+      {#if step === 2}
         <div class="card p-4 shadow-sm">
           <div class="mb-3">
             <label class="form-label">Título</label>
@@ -404,12 +517,25 @@
           
           <div class="mb-3">
             <label class="form-label">Descripción</label>
-            <textarea 
-              class="form-control" 
-              rows="5" 
+            <RichTextEditor 
               bind:value={event.content} 
-              required
-            ></textarea>
+              height="300px"
+              placeholder="Escribe el contenido del evento aquí..."
+            />
+            <button 
+              type="button"
+              class="btn btn-sm btn-outline-secondary mt-2"
+              on:click={handleGenerateDescription}
+              disabled={isGeneratingDescription}
+            >
+              {#if isGeneratingDescription}
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Generando...
+              {:else}
+                Generar descripción con IA
+              {/if}
+            </button>
+            <small class="text-muted d-block">Puedes generar una descripción automáticamente con IA</small>
           </div>
           
           <div class="mb-3">
@@ -468,39 +594,6 @@
           </div>
           
           <div class="d-flex justify-content-between mt-3">
-            <button type="button" class="btn btn-outline-secondary" on:click={() => navigate('/admin/events')}>
-              Cancelar
-            </button>
-            <button type="button" class="btn btn-primary" on:click={() => step = 2}>
-              Siguiente
-            </button>
-          </div>
-        </div>
-      {/if}
-      
-      {#if step === 2}
-        <div class="card p-4 shadow-sm">
-          <div class="mb-3">
-            <label class="form-label">Lugar</label>
-            <select class="form-select" bind:value={event.id_venue}>
-              <option value="" disabled>Selecciona un lugar</option>
-              {#each venues as venue}
-                <option value={venue.id.toString()}>{venue.name} - {venue.address}</option>
-              {/each}
-            </select>
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Bandas/Artistas</label>
-            <select class="form-select" multiple bind:value={selectedBandsIds} size="5">
-              {#each bands as band}
-                <option value={band.id.toString()}>{band.name}</option>
-              {/each}
-            </select>
-            <small class="text-muted">Mantén presionado Ctrl para seleccionar múltiples bandas</small>
-          </div>
-          
-          <div class="d-flex justify-content-between mt-3">
             <button type="button" class="btn btn-outline-secondary" on:click={() => step = 1}>
               Anterior
             </button>
@@ -512,66 +605,48 @@
       {/if}
       
       {#if step === 3}
-        <div class="card p-4 shadow-sm">
-          <div class="mb-4">
-            <label class="form-label">Imagen del evento</label>
-            
-            <div class="mb-3">
-              <div class="d-flex align-items-center mb-2">
-                <div class="form-check">
-                  <input 
-                    class="form-check-input" 
-                    type="checkbox" 
-                    id="changeImage" 
-                    bind:checked={imageChanged}
-                  />
-                  <label class="form-check-label" for="changeImage">
-                    Cambiar imagen
-                  </label>
-                </div>
+        <div class="card p-4">
+          <h5 class="mb-4 text-center">Confirmar cambios del evento</h5>
+
+          {#if imagePreview}
+            <div class="text-center mb-4">
+              <img src={imagePreview} alt="Vista previa del flyer" class="img-fluid rounded shadow" style="max-height: 300px;" />
+              <div><small class="text-muted">Vista previa del nuevo flyer</small></div>
+            </div>
+          {:else if event.image}
+            <div class="text-center mb-4">
+              <img src={event.image} alt="Flyer actual" class="img-fluid rounded shadow" style="max-height: 300px;" />
+              <div><small class="text-muted">Flyer actual</small></div>
+            </div>
+          {/if}
+
+          <ul class="list-group mb-4">
+            <li class="list-group-item"><strong>Título:</strong> {event.title}</li>
+            <li class="list-group-item"><strong>Fecha de inicio:</strong> {new Date(event.date_start).toLocaleString('es-AR')}</li>
+            <li class="list-group-item"><strong>Fecha de fin:</strong> {event.date_end ? new Date(event.date_end).toLocaleString('es-AR') : 'No especificada'}</li>
+            <li class="list-group-item">
+              <strong>Contenido:</strong><br>
+              <div class="mt-2 p-3 bg-light rounded content-preview" style="max-height: 300px; overflow-y: auto;">
+                {@html event.content}
               </div>
-              
-              {#if imageChanged}
-                <input 
-                  type="file" 
-                  class="form-control" 
-                  accept="image/*" 
-                  on:change={handleFileChange}
-                  required={imageChanged}
-                />
-                <small class="text-muted">Recomendado: 1200x630px, formato JPG</small>
-              {/if}
-            </div>
-            
-            <div class="mt-3">
-              <p class="mb-2">Vista previa:</p>
-              {#if imagePreview}
-                <img 
-                  src={imagePreview} 
-                  alt="Vista previa" 
-                  class="img-fluid rounded" 
-                  style="max-height: 300px; object-fit: cover;"
-                />
-              {:else}
-                <div class="alert alert-warning">
-                  No hay imagen disponible
-                </div>
-              {/if}
-            </div>
-          </div>
-          
+            </li>
+            <li class="list-group-item"><strong>Tags:</strong> {event.tags}</li>
+            <li class="list-group-item">
+              <strong>Lugar:</strong> {venues.find(v => v.id.toString() === event.id_venue)?.name || 'No especificado'}
+            </li>
+            <li class="list-group-item">
+              <strong>Bandas:</strong> {selectedBandsIds.map(id => bands.find(b => b.id.toString() === id)?.name).join(', ') || 'Ninguna'}
+            </li>
+          </ul>
+
           <div class="d-flex justify-content-between">
-            <button type="button" class="btn btn-outline-secondary" on:click={() => step = 2}>
+            <button type="button" class="btn btn-secondary" on:click={() => step = 2}>
               Anterior
             </button>
-            <button 
-              type="submit" 
-              class="btn btn-success" 
-              disabled={isSubmitting}
-            >
+            <button type="submit" class="btn btn-success" disabled={isSubmitting}>
               {#if isSubmitting}
                 <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Guardando...
+                Procesando...
               {:else}
                 Guardar Cambios
               {/if}
@@ -622,5 +697,15 @@
   .btn-success:hover {
     background-color: #00a383;
     border-color: #00a383;
+  }
+  
+  .content-preview :global(p) {
+    margin-bottom: 1rem;
+  }
+  .content-preview :global(b) {
+    font-weight: bold;
+  }
+  .content-preview :global(i) {
+    font-style: italic;
   }
 </style>

@@ -92,73 +92,92 @@
     // Función para publicar en Instagram
     async function publishToInstagram(id) {
       try {
-        // Confirmar antes de publicar
         const result = await Swal.fire({
-          title: '¿Publicar en Instagram?',
-          text: 'Se publicará este evento en Instagram (feed y stories)',
+          title: 'Publicar en Instagram',
+          html: `
+            <div class="text-center">
+              <p>¿Querés publicar este evento en Instagram?</p>
+              <p class="text-muted">Se publicará en feed y stories</p>
+            </div>
+          `,
           icon: 'question',
           showCancelButton: true,
           confirmButtonText: 'Sí, publicar',
-          cancelButtonText: 'Cancelar'
+          cancelButtonText: 'Cancelar',
+          showLoaderOnConfirm: true,
+          preConfirm: async () => {
+            try {
+              const res = await fetch(`${API}/events/${id}/publish-instagram`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${TOKEN}`
+                }
+              });
+              
+              if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`Error ${res.status}: ${errorText}`);
+              }
+              
+              return await res.json();
+            } catch (error) {
+              Swal.showValidationMessage(`Error: ${error.message}`);
+            }
+          },
+          allowOutsideClick: () => !Swal.isLoading()
         });
-        
-        if (!result.isConfirmed) {
-          return;
-        }
-        
-        // Mostrar indicador de carga
-        Swal.fire({
-          title: 'Publicando...',
-          text: 'Enviando a Instagram, por favor espera...',
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
+
+        if (result.isConfirmed) {
+          const data = result.value;
+          if (data.success) {
+            await Swal.fire({
+              title: '¡Publicado!',
+              html: `
+                <div class="text-center">
+                  <p>El evento ha sido publicado en Instagram.</p>
+                  <div class="mt-3">
+                    ${data.feed.success ? 
+                      '<p class="text-success"><i class="bi bi-check-circle"></i> Feed: Publicado correctamente</p>' : 
+                      `<p class="text-danger"><i class="bi bi-x-circle"></i> Feed: ${data.feed.message}</p>`}
+                    ${data.story.success ? 
+                      '<p class="text-success"><i class="bi bi-check-circle"></i> Story: Publicada correctamente</p>' : 
+                      `<p class="text-danger"><i class="bi bi-x-circle"></i> Story: ${data.story.message}</p>`}
+                  </div>
+                </div>
+              `,
+              icon: 'success'
+            });
+          } else {
+            await Swal.fire({
+              title: 'Publicación parcial',
+              html: `
+                <div class="text-center">
+                  <p>Hubo algunos problemas al publicar:</p>
+                  <div class="mt-3">
+                    ${data.feed.success ? 
+                      '<p class="text-success"><i class="bi bi-check-circle"></i> Feed: Publicado correctamente</p>' : 
+                      `<p class="text-danger"><i class="bi bi-x-circle"></i> Feed: ${data.feed.message}</p>`}
+                    ${data.story.success ? 
+                      '<p class="text-success"><i class="bi bi-check-circle"></i> Story: Publicada correctamente</p>' : 
+                      `<p class="text-danger"><i class="bi bi-x-circle"></i> Story: ${data.story.message}</p>`}
+                  </div>
+                </div>
+              `,
+              icon: 'warning'
+            });
           }
-        });
-        
-        // Llamar al endpoint para publicar en Instagram
-        const res = await fetch(`${API}/events/${id}/publish-instagram`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${TOKEN}`
-          }
-        });
-        
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(`Error ${res.status}: ${errorText}`);
-        }
-        
-        const data = await res.json();
-        
-        // Mostrar resultado
-        if (data.success) {
-          Swal.fire({
-            title: '¡Publicado!',
-            html: `
-              <p>El evento ha sido publicado en Instagram.</p>
-              ${data.feed.success ? '<p>✅ Feed: Publicado correctamente</p>' : '<p>❌ Feed: Error - ' + data.feed.message + '</p>'}
-              ${data.story.success ? '<p>✅ Story: Publicada correctamente</p>' : '<p>❌ Story: Error - ' + data.story.message + '</p>'}
-            `,
-            icon: 'success'
-          });
-        } else {
-          Swal.fire({
-            title: 'Publicación parcial',
-            html: `
-              <p>Hubo problemas al publicar en Instagram:</p>
-              ${data.feed.success ? '<p>✅ Feed: Publicado correctamente</p>' : '<p>❌ Feed: Error - ' + data.feed.message + '</p>'}
-              ${data.story.success ? '<p>✅ Story: Publicada correctamente</p>' : '<p>❌ Story: Error - ' + data.story.message + '</p>'}
-            `,
-            icon: 'warning'
-          });
         }
       } catch (error) {
         console.error("Error al publicar en Instagram:", error);
-        Swal.fire({
+        await Swal.fire({
           title: 'Error',
-          text: error.message || 'No se pudo publicar en Instagram',
+          html: `
+            <div class="text-center">
+              <p>No se pudo publicar en Instagram</p>
+              <p class="text-danger">${error.message}</p>
+            </div>
+          `,
           icon: 'error'
         });
       }

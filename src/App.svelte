@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { Router, Route } from 'svelte-routing';
+	import { Router, Route, useLocation } from 'svelte-routing';
 	import { url } from './stores/url.js';
 	import { applyMetatags } from './metatags.js';
 	import Player  from './components/Player.svelte';
@@ -34,6 +34,52 @@
 	// Podés reemplazar estos con sus componentes reales más adelante
 	const Placeholder = { render: () => 'En construcción...' };
 
+	// Escuchamos cambios en la ubicación
+	const location = useLocation();
+	let currentPath = '';
+	let documentTitle = '';
+
+	// Estado global para el título y descripción de la página
+	let pageTitle = 'Brote Colectivo | Portal de difusión cultural en Santa Cruz';
+	let pageDescription = 'Brote Colectivo es el portal cultural de Santa Cruz, Patagonia Argentina. Descubrí artistas, eventos, noticias, espacios culturales y más.';
+
+	// Función para actualizar Analytics
+	function updateAnalytics(path, title, description) {
+		if (typeof gtag === 'function') {
+			// Enviar cambio de página
+			gtag('config', 'G-XX3XMK8GZX', {
+				page_path: path,
+				page_title: title,
+				page_location: window.location.href
+			});
+
+			// Evento personalizado con más información
+			gtag('event', 'page_view', {
+				page_title: title,
+				page_path: path,
+				page_location: window.location.href,
+				page_description: description
+			});
+		}
+	}
+
+	// Observar cambios en la ruta y en el título del documento
+	$: if ($location && ($location.pathname !== currentPath || document.title !== documentTitle)) {
+		currentPath = $location.pathname;
+		documentTitle = document.title;
+		
+		// Enviamos la información a Analytics después de un breve retraso
+		// para dar tiempo a que los componentes actualicen metadatos
+		setTimeout(() => {
+			// Capturar el título y descripción actual
+			const currentTitle = document.title || pageTitle;
+			const metaDescription = document.querySelector('meta[name="description"]');
+			const currentDescription = metaDescription ? metaDescription.getAttribute('content') : pageDescription;
+			
+			updateAnalytics(currentPath, currentTitle, currentDescription);
+		}, 100);
+	}
+  
 	onMount(() => {
 		const token = localStorage.getItem('access_token');
 		if (token) {

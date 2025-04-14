@@ -73,6 +73,7 @@ $: current = $url;
       <!-- Links para crear artista y evento -->
       <a href="/admin/artists/add" use:link on:click={closeNavbar}>Nuevo artista</a>
       <a href="/admin/events/add" use:link on:click={closeNavbar}>Nuevo evento</a>
+      <a href="/admin/news/add" use:link on:click={closeNavbar}>Nuevo artículo</a>
 
         <a href="#" on:click|preventDefault={() => { logout(); closeNavbar(); }}>Salir</a>
         {#if $user.role === 'admin'}
