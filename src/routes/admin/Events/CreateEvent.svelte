@@ -25,6 +25,12 @@
   let slugCheckTimeout;
   let slugModified = false;
   let isGeneratingDescription = false;
+  let isUploadingImage = false;
+  let imageUploaded = false;
+  let flyerUrl = '';
+  let slugLocked = false;
+
+  $: slugLocked = imageUploaded && flyerUrl;
 
   function getNowForInput() {
     const now = new Date();
@@ -95,17 +101,62 @@
     slugCheckTimeout = setTimeout(generateSlugFromTitle, 500);
   }
 
+  async function uploadImageIfNeeded() {
+    if (!file) return null;
+    // Si ya se subió y el flyerUrl es válido, no volver a subir
+    if (imageUploaded && flyerUrl) return flyerUrl;
+    isUploadingImage = true;
+    imageUploaded = false;
+    try {
+      // Si no hay slug, generarlo
+      if (!event.slug) {
+        event.slug = event.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').substring(0, 50);
+      }
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('slug', event.slug);
+      // Si es submission (no admin y no creando venue), usar submissions/upload-image
+      let endpoint = `${API}/submissions/upload-image`;
+      if (!$user.role || $user.role !== 'admin') {
+        endpoint = `${API}/submissions/upload-image`;
+      }
+      const uploadRes = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${TOKEN}` },
+        body: formData
+      });
+      if (!uploadRes.ok) {
+        const errorText = await uploadRes.text();
+        throw new Error(errorText || 'Error al subir la imagen');
+      }
+      // Obtener la URL pública
+      const uploadData = await uploadRes.json();
+      flyerUrl = uploadData.url || `${MEDIA_URL}pending/${event.slug}.jpg`;
+      imageUploaded = true;
+      isUploadingImage = false;
+      return flyerUrl;
+    } catch (error) {
+      isUploadingImage = false;
+      imageUploaded = false;
+      throw error;
+    }
+  }
+
   async function generateDescriptionWithAI(customPrompt = '') {
     try {
       isGeneratingDescription = true;
-      
+      // Subir imagen si es necesario
+      let flyer_url = '';
+      if (file) {
+        flyer_url = await uploadImageIfNeeded();
+      } else if (imagePreview && imagePreview.startsWith('http')) {
+        flyer_url = imagePreview;
+      }
       // Obtener el nombre del lugar
       const venueName = creatingVenue ? newVenue.name : (venues.find(v => v.id == event.id_venue)?.name || '');
       const venueAddress = creatingVenue ? newVenue.address : (venues.find(v => v.id == event.id_venue)?.address || '');
-      
       // Obtener los nombres de las bandas
       const bandNames = selectedBandsIds.map(id => bands.find(b => b.id == id)?.name).filter(Boolean);
-      
       // Formatear la fecha
       const startDate = event.date_start ? new Date(event.date_start) : null;
       const formattedDate = startDate ? startDate.toLocaleDateString('es-AR', {
@@ -116,7 +167,6 @@
         hour: '2-digit',
         minute: '2-digit'
       }) : '';
-
       const res = await fetch(`${API}/events/generate-description`, {
         method: 'POST',
         headers: {
@@ -129,17 +179,15 @@
           venue_address: venueAddress,
           date: formattedDate,
           bands: bandNames,
-          custom_prompt: customPrompt
+          custom_prompt: customPrompt,
+          flyer_url
         })
       });
-
       if (!res.ok) {
         throw new Error('Error al generar la descripción');
       }
-
       const data = await res.json();
       event.content = data.description;
-
     } catch (error) {
       console.error('Error completo:', error);
       Swal.fire({
@@ -792,11 +840,14 @@
               type="button" 
               class="btn btn-outline-primary btn-sm" 
               on:click={handleGenerateDescription} 
-              disabled={!event.title || isGeneratingDescription}
+              disabled={!event.title || isGeneratingDescription || isUploadingImage}
             >
               {#if isGeneratingDescription}
                 <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                 Generando...
+              {:else if isUploadingImage}
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Subiendo imagen...
               {:else}
                 {event.content ? 'Mejorar con IA' : 'Generar con IA'}
               {/if}
@@ -830,7 +881,11 @@
             bind:value={event.slug}
             placeholder="URL amigable del evento"
             on:input={() => slugModified = true}
+            disabled={slugLocked}
           />
+          {#if slugLocked}
+            <div class="alert alert-info">El slug no se puede modificar porque ya se subió la imagen del flyer.</div>
+          {/if}
           <div class="form-text">Identificador único para la URL del evento.</div>
         </div>
 

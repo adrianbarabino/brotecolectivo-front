@@ -6,6 +6,7 @@
 	import Player  from './components/Player.svelte';
 	import Navbar from './components/Navbar.svelte';
     import { user } from './stores/user.js';
+	import { utm } from './stores/utm.js';
 
 	// Rutas públicas
 	import Home from './routes/Home.svelte';
@@ -82,6 +83,23 @@
 	}
   
 	onMount(() => {
+
+	const queryParams = new URLSearchParams(window.location.search);
+
+	const data = {
+		source: queryParams.get('utm_source'),
+		medium: queryParams.get('utm_medium'),
+		campaign: queryParams.get('utm_campaign'),
+		term: queryParams.get('utm_term'),
+		content: queryParams.get('utm_content')
+	};
+
+	utm.set(data);
+
+	// Opcional: guardar en localStorage para persistencia entre rutas internas
+	localStorage.setItem('utm_data', JSON.stringify(data));
+
+
 		const token = localStorage.getItem('access_token');
 		if (token) {
 			// parse payload but fixing charset issues 

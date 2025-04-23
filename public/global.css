@@ -198,8 +198,12 @@ main {
 	padding:1em 2em;
   }
   .card-img-top{
-    max-height:150px!important;
+    max-height:170px!important;
     object-fit: cover;
+  }
+  .col-md-8 > .col-12 > div > img.card-img-top {
+    max-height: 400px!important;
+    height: auto!important;
   }
   .card-title{
 	font-family: 'Roboto', sans-serif;

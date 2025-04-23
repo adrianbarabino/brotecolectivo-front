@@ -357,17 +357,59 @@
     }
   }
   
+  let isUploadingImage = false;
+  let imageUploaded = false;
+  let flyerUrl = '';
+  let slugLocked = false;
+
+  $: slugLocked = imageUploaded && flyerUrl;
+
+  async function uploadImageIfNeeded() {
+    if (!file) return null;
+    if (imageUploaded && flyerUrl) return flyerUrl;
+    isUploadingImage = true;
+    imageUploaded = false;
+    try {
+      if (!event.slug) {
+        event.slug = event.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').substring(0, 50);
+      }
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('slug', event.slug);
+      formData.append('destination', 'events');
+      const uploadRes = await fetch(`${API}/submissions/upload-image`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${TOKEN}` },
+        body: formData
+      });
+      if (!uploadRes.ok) {
+        const errorText = await uploadRes.text();
+        throw new Error(errorText || 'Error al subir la imagen');
+      }
+      const uploadData = await uploadRes.json();
+      flyerUrl = uploadData.url || `${MEDIA_URL}events/${event.slug}.jpg`;
+      imageUploaded = true;
+      isUploadingImage = false;
+      return flyerUrl;
+    } catch (error) {
+      isUploadingImage = false;
+      imageUploaded = false;
+      throw error;
+    }
+  }
+
   async function generateDescriptionWithAI(customPrompt = '') {
     try {
       isGeneratingDescription = true;
-      
-      // Obtener el nombre del lugar
-      const venue = venues.find(v => v.id.toString() === event.id_venue);
-      
-      // Obtener los nombres de las bandas
-      const bandNames = selectedBandsIds.map(id => bands.find(b => b.id.toString() === id)?.name).filter(Boolean);
-      
-      // Formatear la fecha
+      let flyer_url = '';
+      if (imageChanged && file) {
+        flyer_url = await uploadImageIfNeeded();
+      } else if (imagePreview && imagePreview.startsWith('http')) {
+        flyer_url = imagePreview;
+      }
+      const venueName = venues.find(v => v.id == event.id_venue)?.name || '';
+      const venueAddress = venues.find(v => v.id == event.id_venue)?.address || '';
+      const bandNames = selectedBandsIds.map(id => bands.find(b => b.id == id)?.name).filter(Boolean);
       const startDate = event.date_start ? new Date(event.date_start) : null;
       const formattedDate = startDate ? startDate.toLocaleDateString('es-AR', {
         weekday: 'long',
@@ -377,7 +419,6 @@
         hour: '2-digit',
         minute: '2-digit'
       }) : '';
-
       const res = await fetch(`${API}/events/generate-description`, {
         method: 'POST',
         headers: {
@@ -386,21 +427,19 @@
         },
         body: JSON.stringify({
           title: event.title,
-          venue_name: venue?.name || '',
-          venue_address: venue?.address || '',
+          venue_name: venueName,
+          venue_address: venueAddress,
           date: formattedDate,
           bands: bandNames,
-          custom_prompt: customPrompt
+          custom_prompt: customPrompt,
+          flyer_url
         })
       });
-
       if (!res.ok) {
         throw new Error('Error al generar la descripción');
       }
-
       const data = await res.json();
       event.content = data.description;
-
     } catch (error) {
       console.error('Error completo:', error);
       Swal.fire({
@@ -509,10 +548,14 @@
                 type="text" 
                 bind:value={event.slug} 
                 on:input={handleSlugChange}
+                disabled={slugLocked}
                 required
               />
             </div>
             <small class="text-muted">Identificador único para la URL del evento</small>
+            {#if slugLocked}
+              <div class="alert alert-info">El slug no se puede modificar porque ya se subió la imagen del flyer.</div>
+            {/if}
           </div>
           
           <div class="mb-3">
@@ -526,11 +569,14 @@
               type="button"
               class="btn btn-sm btn-outline-secondary mt-2"
               on:click={handleGenerateDescription}
-              disabled={isGeneratingDescription}
+              disabled={isGeneratingDescription || isUploadingImage}
             >
               {#if isGeneratingDescription}
                 <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                 Generando...
+              {:else if isUploadingImage}
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Subiendo imagen...
               {:else}
                 Generar descripción con IA
               {/if}
